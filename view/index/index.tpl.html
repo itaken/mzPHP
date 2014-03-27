@@ -1,0 +1,126 @@
+<?=tpl('public/header',true);?>
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-3 column">
+			<!-- 侧边栏 -->
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">侧边栏</h3>
+					<span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
+				</div>
+				<div class="panel-body">
+					<ul class="nav nav-list">
+						<?php 
+						foreach( $sidebar as $key => $side ):
+						echo '<li class="nav-header">Sidebar '.$key.'</li>';
+						foreach($side as $v):
+						?>
+						<li><a href="#"><?=$v;?></a></li>
+						<?php
+						endforeach;
+						endforeach; 
+						?>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-9 column">
+			<div class="jumbotron">
+				<h2>START, mzPHP!</h2>
+				<p>More  (～﹃～)~zzZ , Let's  PHP! </p>
+				<p><a class="btn btn-primary btn-lg" href="https://github.com/itaken/mzPHP" role="button">GO to GIT</a></p>
+			</div>
+			<blockquote>mzPHP采用 <span class="label label-success">BSD开源协议</span>，在代码内保留署名即可自由分发修改或商用。</blockquote>
+			
+			<div class="page-header">
+				<h3>mzPHP 是什么?&nbsp;<small>what it is?</small></h3>
+			</div>
+			<p>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				mzPHP，追求简单快捷编码，使用更懒的方法，写更少的代码做出自己中意的网站，是一种简单的轻框架。
+				其中借鉴了其他一些框架的方法，结合自己的认识整理而来，一路修修改改，现今框架基础搭建完毕，
+				至于更多方法，以后慢慢添加。 
+				<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				有问题可以给我一只<a href="mailto:regelhh@gmail.com">猫</a>，欢迎探讨。
+			</p>
+			<div class="page-header">
+				<h3>为什么写 mzPHP?&nbsp;<small>why it born?</small></h3>
+			</div>
+			<p>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				此框架能够出现，完全是一种意外，因为没有使用杜蕾斯！？由于近阶段失业，准备找一份工作，但是面试了几次都不顺心，
+				于是乎准备写个作品什么的玩意儿，算是加码，就把很久以前的想法丢出来，接着开始计划编程。首先喵中了ThinkPHP，
+				这个框架很庞大，好几M，不过确实好用（主要是由中文文档），但是感觉用了太久了（因为前公司在用这个框架），
+				没有新鲜感，准备找个野生鲜活的框架菌，正巧一个基友说到了LazyPHP，果断找来瞅瞅，发现确实挺简单的，容易上手。
+				所以就直接用了，接着就悲剧了，发现这个框架真的太懒了，完全不能满足我的需要（官人，我还要）。
+				最后一点点的开始改框架，改到原框架都完全变形了！
+				心想，算了！还是自己整合一下生一只新的框架来玩好了，于是mzPHP孕育而生，不过是个早产儿，很多功能也还没有，
+				不过也基本够用，以后看情况如果需要更多的功能，我会慢慢加上。 
+			</p>
+			<div class="page-header">
+				<h3>mzPHP 怎么用?&nbsp;<small>How it work?</small></h3>
+			</div>
+			<div>
+				<ol>
+					<li>克隆项目。从git仓库中迁出项目：<a href="https://github.com/itaken/mzPHP" target="_blank">mzPHP on Git</a></li>
+					<li>修改基础配置。配置文件存放在config目录中，如果添加配置文件，必须在config.ini文件中添加引入。</li>
+					<li>创建模型。模型文件格式为XxxModel.class.php，继承CoreModel即可操作数据库。文件保存在model目录中。</li>
+					<li>新建控制器。控制器是与前端页面(视图)交互的处理中心，存放在controller目录下，文件格式XxxController.class.php。</li>
+					<li>建立页面。在view目录下建立相应的html文件即可查看效果。因为使用Bootstrap，所以更多样式可以参考：
+						<a href="http://v3.bootcss.com/" target="_blank">Bootstrap中文文档</a>
+					</li>
+					<li>链接访问项目。</li>
+				</ol>
+				<i class="label label-warning">PS:</i>&nbsp;如还有疑问，可仿照样例编写。
+			</div>
+			<blockquote class="pull-right">
+				<p class="text-muted">参考和使用的框架</p>
+				<p class="text-info">PHP 轻框架 LazyPHP&nbsp;[参考]</p>
+				<small><a href="http://ftqq.com/lazyphp/" target="_blank">Goto LazyPHP</a></small>
+				<p class="text-info">PHP 框架 ThinkPHP&nbsp;[参考]</p>
+				<small><a href="http://www.thinkphp.cn/" target="_blank">Goto ThinkPHP</a></small>
+				<p class="text-info">[使用]&nbsp;前端开发框架 BootStrap</p>
+				<small><a href="http://www.bootcss.com/" target="_blank">Goto BootStrap</a></small>
+			</blockquote>
+		</div>
+	</div><!--/row-->
+</div><!--/.fluid-container-->
+<script type="text/javascript">
+	$(document).on('click', '.panel-heading span.clickable', function() {
+		var _T = $(this);
+		if (!_T.hasClass('panel-collapsed')) {
+			_T.parents('.panel').find('.panel-body').slideUp();
+			_T.addClass('panel-collapsed');
+			_T.find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+		} else {
+			_T.parents('.panel').find('.panel-body').slideDown();
+			_T.removeClass('panel-collapsed');
+			_T.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+		}
+	});
+</script>
+<style>
+	body{
+		font-family: microsoft yahei;
+	}
+	.clickable{
+		cursor: pointer;   
+	}
+	/* 左侧 面板 */
+	.panel-heading span {
+		margin-top: -20px;
+		font-size: 15px;
+	}
+	.panel-body{
+		max-height: 424px;
+		overflow: hidden;
+	}
+	.panel-body a{
+		margin: 1px;
+		padding: 5px;
+		display: inline-block;
+		text-align: center;
+	}
+
+</style>
+<?=tpl('public/footer'); ?>
