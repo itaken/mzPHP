@@ -103,10 +103,10 @@ function close_db( $db ) // 显式关闭数据库链接
 
 # CSS 与 JAVASCRIPT
 
-mzPHP前端框架采用BootStrap，[你可以从这里看到它的详细介绍](http://twitter.github.com/bootstrap/)。
+mzPHP前端框架采用BootStrap，[前往详情介绍](http://www.bootcss.com/)。
 
-mzPHP使用JQuery2.0。[这里是JQuery API的参考手册](http://api.jquery.com/)。
+mzPHP使用JQuery2.0。[前往参考手册](http://api.jquery.com/)。
 
 
-这里就是关于mzPHP 的一切了，希望mzPHP能让你愉悦编程,快速建站。
+这里就是关于mzPHP 的生平，希望mzPHP能让你愉悦编程,快速建站。
 [END]
