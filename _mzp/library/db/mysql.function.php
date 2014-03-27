@@ -27,7 +27,7 @@ function db($host = null, $port = null, $user = null, $password = null, $db_name
 	$user = empty($user) ? $db_config['db_user'] : $user;
 	$password = empty($password) ? $db_config['db_password'] : $password;
 	$db_name = empty($db_name) ? $db_config['db_name'] : $db_name;
-	(empty($host) || empty($port) || empty($user) || empty($db_name)) && die('--ERROR: DB config error!');
+	(empty($host) || empty($port) || empty($user)) && die('--ERROR: DB config error!');
 	$db_key = 'mysqli-' . md5($host . '-' . $port . '-' . $user . '-' . $password . '-' . $db_name);
 	$GLOBALS['db']['key'] = $db_key;  // 存储数据库KEY
 	if (isset($GLOBALS[$db_key])) {
