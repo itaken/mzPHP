@@ -2,16 +2,19 @@
 
 mzPHP 是一个轻框架,目的是:更少的工作,更快的建站.
 
-mzPHP 使用一个核心方法库,以及一个附加方法库. 核心方法库与附加方法库都是十几个常用函数,不足30个函数不需要花费太多时间去了解.掌握几个方法的使用在样例中有,在函数方法中也有详细的注释.容易上手开发网站.
+mzPHP 使用一个核心方法库,以及一个附加方法库. 核心方法库与附加方法库都是十几个常用函数,不足30个函数不需要花费太多时间去了解.
+
+这几个方法的使用在样例中有,在函数方法中也有详细的注释.容易上手开发网站.
 
 ## 前端控制器 (FrontController)
 mzPHP中,页面的所有访问请求,都会经过前端控制器,然后处理分发,响应请求。该功能的好处是可以统一管理,方便控制.
+
 相当于用户所有访问都是在index.php中发生的,但实际上用户看到的是由前端控制器获取请求,分发处理后的结果.
 
 示例:
 
 ```php
-/index-index.html  // 开启路由后效果
+/index/index.html  // 开启路由后效果
 /index.php?c=index&a=index  // 未开启路由后效果
 ```
 
@@ -40,24 +43,30 @@ class IndexController extends CoreController{
 mzPHP是遵循MVC模式的,即业务逻辑和视图逻辑是完全分离的。
 
 逻辑模型:存放在model目录中,处理程序数据逻辑(主要与数据库交互);
+
 视图:存放在view文件中,模板显示,使用render函数渲染呈现于用户界面.
+
 业务控制器:交互处理,页面显示与底层逻辑模型的交互,存放在controller目录中.
 
-## 短标签语法
+## 替代语法
 
 由于没有没有使用模板引擎,所以在页面模板中,只能采用PHP原生语法书写.在模板中采用短标签语法也是蛮有可读性的.
 
 示例:
 
 ```php
-<?php if( $type == 'coder' ): ?>
-   跟我说:代码改变世界
-<?php else: ?>
-   Hello,mzPHP!
+<?php if ($a<0): ?>
+         是负数拉
 <?php endif; ?>
 ```
+上面的语句等同于
+```php
+<?php if ($a<0){ ?>
+         是负数拉
+<?php } ?>
+```
 
-注:if，foreach都可以这样写。
+注: if ,for，foreach都可以这样写。
 
 # 常用函数
 mzPHP中的函数主要有3类:魔术方法,功能函数和库函数。
@@ -98,15 +107,15 @@ function close_db( $db ) // 显式关闭数据库链接
 
 分页函数
 <pre>
-// TODO::带填充...
+// TODO::待填充...
 </pre>
 
-# CSS 与 JAVASCRIPT
+# 页面前端
 
-mzPHP前端框架采用BootStrap，[前往详情介绍](http://www.bootcss.com/)。
+样式：采用前端框架BootStrap，[前往详情介绍](http://www.bootcss.com/)。
 
-mzPHP使用JQuery2.0。[前往参考手册](http://api.jquery.com/)。
+页面响应：使用JQuery2.0。[前往参考手册](http://api.jquery.com/)。
 
+OK，暂时就说这么多了，希望mzPHP能让你愉悦编程,快速建站。
 
-这里就是关于mzPHP 的生平，希望mzPHP能让你愉悦编程,快速建站。
 [END]
