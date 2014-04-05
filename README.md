@@ -1,8 +1,9 @@
 # mzPHP 简介
+More ZZZ, Let's PHP!!
 
 mzPHP 是一个轻框架,目的是:更少的工作,更快的建站.
 
-mzPHP 使用一个核心方法库,以及一个附加方法库. 核心方法库与附加方法库都是十几个常用函数,不足30个函数不需要花费太多时间去了解.
+mzPHP 使用一个核心方法库,以及一个附加方法库. 核心方法库与附加方法库都是七八个常用函数,不足二十个函数不需要花费太多时间去了解.
 
 这几个方法的使用在样例中有,在函数方法中也有详细的注释.容易上手开发网站.
 
@@ -14,7 +15,8 @@ mzPHP中,页面的所有访问请求,都会经过前端控制器,然后处理分
 示例:
 
 ```php
-/index/index.html  // 开启路由后效果
+/index.php?_q=index/index  // 开启路由后效果
+/index/index.html   // apache伪静态
 /index.php?c=index&a=index  // 未开启路由后效果
 ```
 
@@ -37,6 +39,44 @@ class IndexController extends CoreController{
 	}
 }
 ```
+## 模型示例 (Model)
+
+以下为 Model Class 的示例：
+
+```php
+class TestModel extends CoreModel {
+	
+	public function queryList(){
+		$sql = 'SELECT * FROM test1';
+		$list = $this->query($sql);
+		return $list;
+	}
+}
+```
+
+## 视图 (View)
+采用了layout系统,所以可以更方便的对模板标题和页脚的重用。
+
+布局模板默认存放在view目录的public文件中,可自由命名,在调用render渲染时,传递"L:存放目录/布局模板名"参数.
+例如: "L:public/extend2" 或 "L:public/extend2.tpl.html"
+
+具体使用看示例,layout原理见下.
+
+## 布局系统 (layout)
+使用布局系统,方便代码重用,只需在对应的目录下建立控制器方法模板,即可使用同一布局模板渲染.
+
+<pre>
+<html>
+<!-- 模板标题 -->
+	<body>
+		<!-- 页面内容 -->
+		<?=$___CONTENT___;?>
+		<!-- 模板页脚 -->
+		<footer>
+		</footer>
+	</body>
+</html>
+</pre>
 
 ## MVC结构
 
@@ -50,19 +90,19 @@ mzPHP是遵循MVC模式的,即业务逻辑和视图逻辑是完全分离的。
 
 ## 替代语法
 
-由于没有没有使用模板引擎,所以在页面模板中,只能采用PHP原生语法书写.在模板中采用短标签语法也是蛮有可读性的.
+由于没有没有使用模板引擎,所以在页面模板中,只能采用PHP原生语法书写.
 
 示例:
 
 ```php
 <?php if ($a<0): ?>
-         是负数拉
+	是负数拉
 <?php endif; ?>
 ```
 上面的语句等同于
 ```php
 <?php if ($a<0){ ?>
-         是负数拉
+	是负数拉
 <?php } ?>
 ```
 
@@ -79,17 +119,29 @@ function g( $str ) // 取得全局变量 $GLOBALS[$str] 的数据
 function u( $path, $param ) // 组装URL
 </pre>
 
-## 功能性函数
-
+## 核心函数
 <pre>
-function stop_attack($value, $filt_req) // 输入过滤
-function tpl($path, $data = FALSE)  // 引入模板
-function img($name, $dir = NULL)  // 引入图片
 function assign() // 数据分发
 function render()  // 渲染模板
 function info_page($info, $title = '系统消息', $meta_title = '系统提示') // 系统提示页面
-function ajax_echo( $data ) // 异步返回数据
 function json_return($data, $info = '', $status = '')  // json返回数据
+</pre>
+
+## 附加方法
+
+<pre>
+function ajax_echo( $data ) // 异步返回数据
+function is_mobile_request()   // 判断是否移动端请求
+function mk_dir($dir, $mode = 0777)  // 循环创建目录
+function xor_encrypt($string, $key = '')  // 加密
+function xor_decrypt($string, $key = '')  // 解密
+</pre>
+
+## 用户方法
+
+<pre>
+function tpl($path, $data = FALSE)  // 引入模板
+function img($name, $dir = NULL)  // 引入图片
 </pre>
 
 ## 库函数
