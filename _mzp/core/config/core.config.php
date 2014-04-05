@@ -8,6 +8,9 @@
  */
 defined('INI') or die('--CConf--');
 
-$GLOBALS['config']['default_controller'] = 'index';
-$GLOBALS['config']['default_action'] = 'index';
-$GLOBALS['config']['tpl_file_depr'] = '/';   // TPL分割符 ( /表示目录 )
+return array(
+	'DEFAULT_CONTROLLER' => 'index',  // 默认控制器
+	'DEFAULT_ACTION' => 'index',  // 默认操作方法
+	'TPL_FILE_DEPR' => '/',  // TPL文件分隔符 ( /:目录 )
+	'CACHE_EXPIRE' => 60,  // 缓存有效期 ( 单位: 分 )
+);

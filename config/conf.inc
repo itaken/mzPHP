@@ -8,5 +8,7 @@ defined('INI') or die('--Conf--');
  * @since 2014-3-21
  * @version 1.0 Beta
  */
-include(MROOT . 'config/common.config.php');
-include(MROOT . 'config/db.config.php');
+$cm = include(MROOT . 'config/common.config.php');  // 基础配置
+$db = include(MROOT . 'config/db.config.php');  // 数据库配置
+
+return array_merge($cm, $db);

@@ -1,4 +1,4 @@
-<?=tpl('public/header',true);?>
+<?php $_css_ = array('home-index.css');?>
 <div class="container">
 	<div class="row clearfix">
 		<div class="col-md-3 column">
@@ -99,28 +99,3 @@
 		}
 	});
 </script>
-<style>
-	body{
-		font-family: microsoft yahei;
-	}
-	.clickable{
-		cursor: pointer;   
-	}
-	/* 左侧 面板 */
-	.panel-heading span {
-		margin-top: -20px;
-		font-size: 15px;
-	}
-	.panel-body{
-		max-height: 424px;
-		overflow: hidden;
-	}
-	.panel-body a{
-		margin: 1px;
-		padding: 5px;
-		display: inline-block;
-		text-align: center;
-	}
-
-</style>
-<?=tpl('public/footer'); ?>

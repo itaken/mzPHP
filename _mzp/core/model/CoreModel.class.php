@@ -39,18 +39,16 @@ class CoreModel {
 	 */
 	public function __construct() {
 		// 引入数据库操作对象
-		$db_type = $GLOBALS['config']['db']['db_type'];  // 连接类型
+		$db_type = c('DB_TYPE');  // 连接类型
 		$db_func = LROOT . 'db' . DS . (empty($db_type) ? 'mysql' : $db_type) . '.function.php';
 		file_exists($db_func) ? include_once($db_func) : die('--ERROR: DFunc File Not Found!');
 
-		$this->_sDbName = $GLOBALS['config']['db']['db_name'];  // 数据库名称
+		$this->_sDbName = c('DB_NAME');  // 数据库名称
 		// 组装 数据表
 		$true_tbl = $this->_sTrueTbl;  // 定义 真实表名
 		if (empty($true_tbl)) {
 			$mod = get_class($this); // 子类名称
-			$tbl_name = strtolower(str_replace('Model', '', $mod));  // 表名
-			isset($GLOBALS['config']['db']['tbl_prefix']) && $tbl_name = $GLOBALS['config']['db']['tbl_prefix'] . $tbl_name;
-			isset($GLOBALS['config']['db']['tbl_suffix']) && $tbl_name = $tbl_name . $GLOBALS['config']['db']['tbl_suffix'];
+			$tbl_name = c('TBL_PREFIX') . strtolower(str_replace('Model', '', $mod)) . c('TBL_SUFFIX');  // 表名
 		} else {
 			$tbl_name = $true_tbl;
 		}

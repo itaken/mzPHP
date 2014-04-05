@@ -21,12 +21,11 @@ defined('INI') or die('--MysqliFunc--');
  */
 function db($host = null, $port = null, $user = null, $password = null, $db_name = null) {
 	// 数据库配置
-	$db_config = $GLOBALS['config']['db'];
-	$host = empty($host) ? $db_config['db_host'] : $host;
-	$port = empty($port) ? $db_config['db_port'] : $port;
-	$user = empty($user) ? $db_config['db_user'] : $user;
-	$password = empty($password) ? $db_config['db_password'] : $password;
-	$db_name = empty($db_name) ? $db_config['db_name'] : $db_name;
+	$host = empty($host) ? c('DB_HOST') : $host;
+	$port = empty($port) ? c('DB_PORT') : $port;
+	$user = empty($user) ? c('DB_USER') : $user;
+	$password = empty($password) ? c('DB_PSW') : $password;
+	$db_name = empty($db_name) ? c('DB_NAME') : $db_name;
 	(empty($host) || empty($port) || empty($user)) && die('--ERROR: DB config error!');
 	$db_key = 'mysqli-' . md5($host . '-' . $port . '-' . $user . '-' . $password . '-' . $db_name);
 	$GLOBALS['db']['key'] = $db_key;  // 存储数据库KEY
@@ -70,7 +69,7 @@ function escape_string($str, $db = NULL) {
 function get_line($sql, $db = NULL) {
 	$db = is_null($db) ? db() : $db;
 	$result = run_sql($sql, $db);
-	if(empty($result)){
+	if (empty($result)) {
 		return array();
 	}
 	$row = $result->fetch_assoc();
@@ -89,7 +88,7 @@ function get_data($sql, $db = NULL) {
 	$data = array();
 	$db = is_null($db) ? db() : $db;
 	$result = run_sql($sql, $db);
-	if(empty($result)){
+	if (empty($result)) {
 		return $data;
 	}
 	while ($row = $result->fetch_array(MYSQLI_ASSOC)) {

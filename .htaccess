@@ -4,5 +4,5 @@
 
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^(.*).html$ index.php?acq=$1 [QSA,PT,L]
+  RewriteRule ^(.*).html$ index.php?_q_=$1 [QSA,PT,L]
 </IfModule>

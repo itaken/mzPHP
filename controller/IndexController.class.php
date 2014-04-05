@@ -19,7 +19,7 @@ class IndexController extends HomeController {
 		$test_mod = new TestModel();
 		$bar = $test_mod->sidebar();
 		assign('sidebar',$bar);
-		render();
+		render(array('meta_title' => '首页'));
 	}
 
 	/**

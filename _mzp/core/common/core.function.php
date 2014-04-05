@@ -10,38 +10,19 @@
 defined('INI') or die('--CFunc--');
 
 /**
- * @var string 过滤规则, 来自 360 safe
- */
-$getfilter = "'|(and|or)\\b.+?(>|<|=|in|like)|\\/\\*.+?\\*\\/|<\\s*script\\b|\\bEXEC\\b|UNION.+?SELECT|UPDATE.+?SET|INSERT\\s+INTO.+?VALUES|(SELECT|DELETE).+?FROM|(CREATE|ALTER|DROP|TRUNCATE)\\s+(TABLE|DATABASE)";
-$postfilter = "\\b(and|or)\\b.{1,6}?(=|>|<|\\bin\\b|\\blike\\b)|\\/\\*.+?\\*\\/|<\\s*script\\b|\\bEXEC\\b|UNION.+?SELECT|UPDATE.+?SET|INSERT\\s+INTO.+?VALUES|(SELECT|DELETE).+?FROM|(CREATE|ALTER|DROP|TRUNCATE)\\s+(TABLE|DATABASE)";
-$cookiefilter = "\\b(and|or)\\b.{1,6}?(=|>|<|\\bin\\b|\\blike\\b)|\\/\\*.+?\\*\\/|<\\s*script\\b|\\bEXEC\\b|UNION.+?SELECT|UPDATE.+?SET|INSERT\\s+INTO.+?VALUES|(SELECT|DELETE).+?FROM|(CREATE|ALTER|DROP|TRUNCATE)\\s+(TABLE|DATABASE)";
-
-/**
- * 输入过滤, 修改自 360safe_php
- * 
- * @param mixed $value 需要过滤的数据
- * @param string $filt_req 过滤规则
- * @return void
- */
-function stop_attack($value, $filt_req) {
-	if (empty($value) || empty($filt_req)) {
-		return FALSE;
-	}
-	$value = is_array($value) ? implode($value) : $value;
-	// 匹配过滤
-	if (preg_match("/" . $filt_req . "/is", $value)) {
-		exit('Illegal operation! ');
-	}
-}
-
-/**
  * 获取 配置内容
  * 
  * @param string $str 配置名称
  * @return mixed 配置值
  */
 function c($str) {
-	return isset($GLOBALS['config'][$str]) ? $GLOBALS['config'][$str] : null;
+	$c_conf_file = CROOT . 'config' . DS . 'core.config.php';  // 核心配置
+	$c_conf = file_exists($c_conf_file) ? include($c_conf_file) : array();
+	// 引入项目配置
+	$app_conf_file = MROOT . 'config' . DS . 'conf.inc';
+	$app_conf = file_exists($app_conf_file) ? include($app_conf_file) : array();
+	$conf = array_merge($c_conf, $app_conf);
+	return isset($conf[$str]) ? $conf[$str] : null;
 }
 
 /**
@@ -68,54 +49,43 @@ function u($path = null, $param = array()) {
 	}
 	$path = explode('/', $path);
 	if (!OPEN_SLINK) {
-		$url = SITE_URL . '/?c=' . $path[0] . '&a=' . $path[1];
+		$url = SITE_URL . '?c=' . $path[0] . '&a=' . $path[1];
 		return empty($param) ? $url : $url . '&' . http_build_query($param);
 	}
 	$param_str = '';
 	if (!empty($param) && is_array($param)) {
 		foreach ($param as $key => $value) {
-			$param_str = '-' . xor_encrypt($key . '|' . $value);
+			$param_str = '/' . $key . '/' . urlencode($value);
 		}
 	}
-	return SITE_URL . '/' . $path[0] . '-' . $path[1] . $param_str . '.html';
+	return SITE_URL . $path[0] . '/' . $path[1] . $param_str . '.html';
 }
 
 /**
- * 引入模板文件
+ * 回溯 解析
  * 
- * @param string $path 模板路径
- * @param boolean $data 是否加载数据
- * @return string 模板内容
+ * @return array 
  */
-function tpl($path, $data = FALSE) {
-	$layout_file = MROOT . 'view/' . $path . '.tpl.html';  // 完整路径
-	if (file_exists($layout_file)) {
-		$data && extract($GLOBALS['__assign']);
-		require( $layout_file );  // 引入文件
-	} elseif (APP_DEBUG) {
-		// 文件不存在
-		exit('--"' . $path . '.tpl.html" ERROR: ' . 'FILE Not Found!!');
+function tarce() {
+	$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);  // 获取回溯
+	$back = array();
+	foreach ($trace as $value) {
+		$func = $value['function'];
+		if (strcmp($func, __FUNCTION__) == 0) {
+			continue;
+		}
+		if (isset($value['file'])) {
+			if (strpos($value['file'], 'mzp.ini.php') !== FALSE) {
+				break;
+			}
+		}
+		$cls = isset($value['class']) ? $value['class'] : null;
+		$back[] = array(
+			'function' => $func,
+			'class' => $cls,
+		);
 	}
-}
-
-/**
- * 获取 图片
- * 
- * @param string $name 图片名称
- * @param string $dir 附加目录
- * @return string
- */
-function img($name, $dir = NULL) {
-	$name = strtolower(trim($name));
-	if (empty($name)) {
-		return SITE_URL . '/static/imgs/public/default.jpg';
-	}
-	$param = MROOT . 'static/imgs/' . (empty($dir) ? $name : trim($dir) . '/' . $name) . '.*';
-	$files = glob($param, GLOB_NOSORT);  // 匹配
-	if (empty($files)) {
-		return SITE_URL . '/static/imgs/public/default.jpg';
-	}
-	return str_replace(MROOT, SITE_URL . '/', $files[0]);
+	return $back;
 }
 
 /**
@@ -151,111 +121,94 @@ function assign() {
 }
 
 /**
- * 回溯 解析
- * 
- * @return array 
- */
-function tarce() {
-	$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);  // 获取回溯
-	$back = array();
-	foreach ($trace as $value) {
-		$func = $value['function'];
-		if (strcmp($func, __FUNCTION__) == 0) {
-			continue;
-		}
-		if (isset($value['file'])) {
-			if (strpos($value['file'], 'mzp.ini.php') !== FALSE) {
-				break;
-			}
-		}
-		$cls = isset($value['class']) ? $value['class'] : null;
-		$back[] = array(
-			'function' => $func,
-			'class' => $cls,
-		);
-	}
-	return $back;
-}
-
-/**
  * 模板输出 类似ThinkPHP的display
  * 
  * @args mixed 内容数据 | 模板子目录/模板名称 
- *   ( 示例: 'info.tpl.html' | array('meta_title'=>'regel') | array('msg'=>'Just Test!'),'info.tpl.html' | 'public','info' | array(...),'public','info' )
+ *   ( 示例: 'info.tpl.html' | array('meta_title'=>'regel') | array('msg'=>'Just Test!'),'public/info.tpl.html' | 'public','info' | array(...),'public','info' )
+ *   ( 数据必须使用array类型, 模板必须使用string类型 , 更改布局使用 L:public/extend | L:public/extend.tpl.html 格式)
  * @return void 
  */
 function render() {
-	$num = func_num_args();  // 参数个数
+	$tpl_suffix = '.tpl.html';  // 模板后缀
+	$layout_file = 'public/extend.tpl.html';
+	$tpl = $___CSS___ = null;  // 错误信息
+	$tpl_depr = c('TPL_FILE_DEPR');  // 分割
 	$data = array(
 		// SEO
-		'meta_title' => $GLOBALS['meta']['default_title'],
-		'meta_keywords' => $GLOBALS['meta']['default_keywords'],
-		'meta_description' => $GLOBALS['meta']['default_description']
+		'meta_title' => c('DEFAULT_META_TITLE'),
+		'meta_keywords' => c('DEFAULT_META_KEYWORDS'),
+		'meta_description' => c('DEFAULT_META_DESCRIPTION')
 	);
-	if ($num == 0) {
-		// 数据 使用assign数据
-		isset($GLOBALS['__assign']) && ($data = array_merge($data, $GLOBALS['__assign']));
+	if (isset($GLOBALS['__assign'])) {  // 已经assign数据,则叠加
+		$data = array_merge($data, $GLOBALS['__assign']);
 	}
-	if ($num == 1) {
-		$info = func_get_arg(0);
-		if (is_array($info)) {
-			// 传递一个参数, 数组则判定为传递数据
-			$data = array_merge($data, $info);
+	$args = func_get_args();  // 获取参数
+	foreach ($args as $arg) {
+		if (empty($arg)) {
+			continue;
 		}
-		if (is_string($info)) {
-			// 字符串,则判定为传递模板文件
-			$layout_file = MROOT . 'view/' . $info;
-			if (file_exists($layout_file)) {
-				isset($GLOBALS['__assign']) && ($data = $GLOBALS['__assign']);
-				is_array($data) && extract($data);
-				$GLOBALS['__assign'] = $data;
-				require( $layout_file );
-				exit;
-			}
-			APP_DEBUG && exit('"' . $info . '" ERROR: ' . 'FILE Not Found!!');
+		if (is_array($arg)) {
+			// 数据 使用assign数据
+			$data = array_merge($data, $arg);
 		}
-	}
-	if ($num > 1) {
-		$args = func_get_args();  // 获取参数内容
-		$tpl = array();
-		foreach ($args as $arg) {
-			if (is_array($arg)) {
-				$data = array_merge($data, $arg);
+		if (is_string($arg)) {
+			if (stripos($arg, 'l:') === 0) {
+				$layout_file = substr($arg, 2);
+				$layout_file = strpos($layout_file, $tpl_suffix) ? $layout_file : $layout_file . $tpl_suffix;
 				continue;
 			}
-			is_string($arg) && ($tpl[] = $arg);
-		}
-		if (count($tpl) == 1) {
-			$layout_file = MROOT . 'view/' . $tpl[0];
-			if (file_exists($layout_file)) {
-				is_array($data) && extract($data);
-				$GLOBALS['__assign'] = $data;
-				require( $layout_file );
-				exit;
-			}
-			APP_DEBUG && exit('"' . $tpl[0] . '" ERROR: ' . 'FILE Not Found!!');
-		} else {
-			$layout = $tpl[0];
-			$sharp = $tpl[1];
+			$tpl .= $arg . $tpl_depr;
 		}
 	}
-	// 没有模板文件
-	if (empty($layout) || empty($sharp)) {
+	$exc = 'public' . $tpl_depr . 'info';  // 例外
+	$exception = strpos($tpl, $exc) !== FALSE ? TRUE : FALSE;  // 是否例外
+	if (empty($tpl) || $exception) {
+		// 没有模板文件, 使用回溯信息
 		$trace = tarce();
-		$layout = empty($layout) ? strtolower(str_replace('Controller', '', $trace[1]['class'])) : $layout;
-		$sharp = empty($sharp) ? $trace[1]['function'] : $sharp;
+		foreach ($trace as $value) {
+			if (empty($value['class'])) {
+				continue;
+			}
+			$layout = strtolower(str_replace('Controller', '', $value['class']));
+			$sharp = $value['function'];
+			$tpl = $exception ? $exc . $tpl_suffix : $layout . $tpl_depr . $sharp . $tpl_suffix;  // 回溯组装模板
+			break;
+		}
+	} else {
+		$tpl_arr = explode($tpl_depr, $tpl);
+		$layout = $tpl_arr[0];
+		$sharp = $tpl_arr[1];
+		$tpl = strpos($tpl, $tpl_suffix) ? trim($tpl, $tpl_depr) : trim($tpl, $tpl_depr) . $tpl_suffix;
 	}
 	$GLOBALS['c'] = $layout;
 	$GLOBALS['a'] = $sharp;
-	$tpl_file = $layout . c('tpl_file_depr') . $sharp . '.tpl.html';  // 模板文件
-	$layout_file = MROOT . 'view/' . $tpl_file;  // 完整路径
-	if (file_exists($layout_file)) {
-		is_array($data) && extract($data);  // 如果是数组,则导入到当前的符号表中
-		$GLOBALS['__assign'] = $data;
-		require( $layout_file );
-		exit;
+	// 载入模板
+	$tpl_file = MROOT . 'view/' . $tpl;  // 完整路径
+	if (!file_exists($tpl_file)) {
+		APP_DEBUG && exit('"' . $tpl . '" ERROR: FILE Not Found!!');
+		@call_user_func(array(new CoreController(), '_empty'));
 	}
-	APP_DEBUG && exit('"' . $tpl_file . '" ERROR: ' . 'FILE Not Found!!');
+	$layout_tpl = MROOT . 'view/' . $layout_file;  // 布局文件
+	if (!file_exists($layout_tpl)) {
+		APP_DEBUG && exit('"' . $layout_file . '" ERROR: FILE Not Found!!');
+		@call_user_func(array(new CoreController(), '_empty'));
+	}
+	is_array($data) && extract($data, EXTR_OVERWRITE);  // 如果是数组,则导入到当前的符号表中
+	// 页面缓存
+	$_css_ = array();
+	ob_start();
+	ob_implicit_flush(FALSE);  // 打开/关闭绝对刷送
+	require( $tpl_file );  // 引入模板
+	$___CONTENT___ = ob_get_clean();  // 获取并清空缓存
+	if (is_array($_css_)) {
+		foreach ($_css_ as $v) {
+			$file = MROOT . 'static/css/' . $v;
+			file_exists($file) && $___CSS___ .= '<link href="' . str_replace(MROOT, SITE_URL, $file) . '" type="text/css" rel="stylesheet">' . PHP_EOL;
+		}
+	}
+	$GLOBALS['__assign'] = $data;
+	require( $layout_tpl );
+	exit;
 }
 
 /**
@@ -270,22 +223,7 @@ function info_page($info, $title = '系统消息', $meta_title = '系统提示')
 	$data['title'] = $title;
 	$data['info'] = $info;
 	$data['meta_title'] = $meta_title;
-	render($data, 'public/info.tpl.html');
-}
-
-/**
- * ajax 返回
- * 
- * @param string $data 返回的数据
- * @return void 
- */
-function ajax_echo($data) {
-	if (!headers_sent()) {
-		header("Content-Type:text/html;charset=utf-8");
-		header("Cache-Control: no-cache, must-revalidate");
-		header("Pragma: no-cache");
-	}
-	exit($data);
+	render($data, 'public/info');
 }
 
 /**
