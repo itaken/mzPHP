@@ -15,7 +15,7 @@ defined('INI') or die('--UFunc--');
  * @return boolean -true 缓存 -false 不缓存
  */
 function is_cache() {
-	return isset(filter_input(INPUT_GET, '_cache')) ? TRUE : FALSE;
+	return isset($_GET['_cache']) ? TRUE : FALSE;
 }
 
 /**
@@ -56,3 +56,17 @@ function tpl($path, $data = FALSE) {
 	}
 }
 
+/**
+ * 获取static内容
+ * 
+ * @param string $file 文件
+ * @param string $dir 目录
+ * @return string 
+ */
+function stc($file, $dir = 'css') {
+	$path = MROOT . 'static/' . $dir . '/' . $file;
+	if (file_exists($path)) {
+		return str_replace(MROOT, SITE_URL, $path);
+	}
+	return FALSE;
+}

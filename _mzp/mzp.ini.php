@@ -24,6 +24,9 @@ $c_func = CROOT . 'common' . DS . 'core.function.php'; // 核心方法库
 file_exists($c_func) ? include_once($c_func) : die('--ERROR: CFunc File Not Found!');
 $a_func = CROOT . 'common' . DS . 'addons.function.php'; // 附加方法库
 file_exists($a_func) ? include_once($a_func) : die('--ERROR: AFunc File Not Found!');
+$u_func = MROOT . 'common' . DS . 'function.php'; // 用戶方法库
+file_exists($u_func) && include_once($u_func);
+
 
 // 对用户输入进行处理
 isset($_GET) && stop_attack($_GET, $getfilter);
