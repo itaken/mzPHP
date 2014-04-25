@@ -47,21 +47,21 @@ function u($path = null, $param = array()) {
 		// 当前 URL
 //		return SITE_URL . filter_input(INPUT_SERVER, 'PHP_SELF') . '?' . filter_input(INPUT_SERVER, 'QUERY_STRING');
 		return trim(SITE_URL, '/').  filter_input(INPUT_SERVER, 'REQUEST_URI');
-	}else if($path == '/' || $path == ''){
+	}else if($path == '/' || $path == '' || strpos($path, '/') === FALSE){
 		return SITE_URL;
 	}
-	$path = explode('/', $path);
-	if (!OPEN_SLINK) {
-		$url = SITE_URL . '?c=' . $path[0] . '&a=' . $path[1];
-		return empty($param) ? $url : $url . '&' . http_build_query($param);
-	}
-	$param_str = '';
-	if (!empty($param) && is_array($param)) {
-		foreach ($param as $key => $value) {
-			$param_str .= '/' . $key . '/' . urlencode($value);
+	if (OPEN_SLINK) {
+		$param_str = '';
+		if (!empty($param) && is_array($param)) {
+			foreach ($param as $key => $value) {
+				$param_str .= '/' . $key . '/' . urlencode($value);
+			}
 		}
+		return SITE_URL . $path . $param_str . '.html';
 	}
-	return SITE_URL . $path[0] . '/' . $path[1] . $param_str . '.html';
+	$path = explode('/', $path);
+	$url = SITE_URL . '?c=' . $path[0] . '&a=' . $path[1];
+	return empty($param) ? $url : $url . '&' . http_build_query($param);
 }
 
 /**
@@ -70,6 +70,7 @@ function u($path = null, $param = array()) {
  * @return string 
  */
 function __deU() {
+	$param = array();
 	if (OPEN_SLINK) {
 		$path_arr = explode('/', str_replace('.html', '', filter_input(INPUT_SERVER, 'PATH_INFO')));  // 获取查询条件
 		$ctrl_arr = array();
@@ -81,7 +82,6 @@ function __deU() {
 			$ctrl_arr[] = $path;
 		}
 		$count = count($ctrl_arr);  // 总数
-		$param = array();
 		foreach ($_GET as $k => $v) {
 			$param[$k] = $v;
 		}
@@ -130,6 +130,9 @@ function __deU() {
  * @return array
  */
 function _refle($controller, $action, $param) {
+	if(empty($param)){
+		return $param;
+	}
 	if (class_exists('ReflectionClass', FALSE)) {   // 反射
 //		$RC = new ReflectionClass($obj);
 //		$parameters = $RC->getMethod($action)->getParameters();  // 获取方法参数
