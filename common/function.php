@@ -10,15 +10,6 @@
 defined('INI') or die('--UFunc--');
 
 /**
- * 是否 缓存
- * 
- * @return boolean -true 缓存 -false 不缓存
- */
-function is_cache() {
-	return isset($_GET['_cache']) ? TRUE : FALSE;
-}
-
-/**
  * 获取 图片
  * 
  * @param string $name 图片名称
