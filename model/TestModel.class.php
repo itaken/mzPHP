@@ -12,7 +12,7 @@ defined('INI') or die('--TestModel--');
 class TestModel extends CoreModel {
 
 	/**
-	 * @var string 真是表名 ( 为空,则表名为 当前模型名称 test,加上表前缀 )
+	 * @var string 真实表名 ( 为空,则表名为 当前模型名称 test,加上表前缀 )
 	 */
 	protected $_sTrueTbl = '';
 

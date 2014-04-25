@@ -10,5 +10,6 @@ defined('INI') or die('--Conf--');
  */
 $cm = include(MROOT . 'config/common.config.php');  // 基础配置
 $db = include(MROOT . 'config/db.config.php');  // 数据库配置
+$img = include(MROOT . 'config/img.config.php');  // 图片配置
 
-return array_merge($cm, $db);
+return array_merge($cm, $db, $img);

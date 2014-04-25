@@ -40,19 +40,19 @@ class CoreModel {
 	public function __construct() {
 		// 引入数据库操作对象
 		$db_type = c('DB_TYPE');  // 连接类型
-		$db_func = LROOT . 'db' . DS . (empty($db_type) ? 'mysql' : $db_type) . '.function.php';
-		file_exists($db_func) ? include_once($db_func) : die('--ERROR: DFunc File Not Found!');
-
-		$this->_sDbName = c('DB_NAME');  // 数据库名称
+		Mlib('db:' . $db_type . '.function');   // 载入 数据操作 库
+		$this->_sDbName = '`' . c('DB_NAME') . '`';  // 数据库名称
 		// 组装 数据表
 		$true_tbl = $this->_sTrueTbl;  // 定义 真实表名
 		if (empty($true_tbl)) {
 			$mod = get_class($this); // 子类名称
-			$tbl_name = c('TBL_PREFIX') . strtolower(str_replace('Model', '', $mod)) . c('TBL_SUFFIX');  // 表名
+			$match = array();
+			preg_match_all('/[A-Z]{1}[a-z0-9]+/', str_replace('Model', '', $mod), $match);
+			$tbl_name = c('TBL_PREFIX') . strtolower(implode('_', $match[0])) . c('TBL_SUFFIX');  // 表名
 		} else {
 			$tbl_name = $true_tbl;
 		}
-		$this->_sTblName = $tbl_name;  // 完整表名
+		$this->_sTblName = '`' . $tbl_name . '`';  // 完整表名
 		$this->_oDb = db();  // 数据库连接
 	}
 
@@ -84,6 +84,10 @@ class CoreModel {
 		$data_str = '';
 		$dbobj = $this->_oDb;
 		foreach ($array as $key => $value) {
+			if (is_array($value)) {
+				$new_data[$key] = $value;
+				continue;
+			}
 			if (!is_string($key)) {
 				continue;
 			}
@@ -103,6 +107,20 @@ class CoreModel {
 	}
 
 	/**
+	 * 更换表名
+	 * 
+	 * @param string $name 表名
+	 * @return object
+	 */
+	protected function table($name) {
+		if (is_string($name)) {
+			$this->_sTblName = $name;
+		}
+//		$this->_oDb = db();
+		return $this;
+	}
+
+	/**
 	 * 插入的数据
 	 * 
 	 * @param array $array
@@ -117,7 +135,7 @@ class CoreModel {
 	 * 插入一条数据
 	 * 
 	 * @param array $data
-	 * @return int  -0 失败
+	 * @return int  -false 失败 -0 非自增ID
 	 */
 	protected function insert($data = array()) {
 		$data = array_merge($this->_aData, $this->dealWithData($data));
@@ -129,9 +147,43 @@ class CoreModel {
 		$rs = run_sql($sql, $this->_oDb);
 		if ($rs) {
 			$insert_id = insert_id($this->_oDb);
+//			// 获取 最后插入ID
+//			$lsql = 'SELECT LAST_INSERT_ID() AS `id`';   // $sql = 'select @@IDENTITY';
+//			$data = get_data($lsql, $this->_oDb);
+//			$insert_id = $data[0]['id'];
 			return $insert_id;
 		}
-		return 0;
+		return FALSE;
+	}
+
+	/**
+	 * 插入一组数据
+	 * 
+	 * @param array $data
+	 * @return int  -false 失败 -0 非自增ID
+	 */
+	protected function insertAll($data = array()) {
+		if (empty($data)) {
+			return FALSE;
+		}
+		$tmp = array();
+		$data = array_merge($this->_aData, $data);
+		foreach ($data as $value) {
+			$new_data = $this->dealWithData($value);
+			$field = implode(',', array_keys($new_data));
+			$tmp[$field][] = '(' . implode(',', array_values($new_data)) . ')';
+		}
+		$sql = '';
+		foreach ($tmp as $k => $v) {
+			$sql .= 'INSERT INTO ' . $this->_sDbName . '.' . $this->_sTblName .
+					'(' . $k . ') VALUES ' . implode(',', $v) . ';';
+		}
+		$rs = run_sql($sql, $this->_oDb);
+		if ($rs) {
+			$insert_id = insert_id($this->_oDb);
+			return $insert_id;
+		}
+		return FALSE;
 	}
 
 	/**
@@ -214,6 +266,29 @@ class CoreModel {
 		}
 		return 0;
 	}
+	
+	/**
+	 * 字段 增减
+	 * 
+	 * @param string $field 字段名
+	 * @param int $step 步入值
+	 * @param string $opt 操作
+	 * @return int 
+	 */
+	private function _crease($field, $step = 1, $opt = '+') {
+		$step = is_numeric($step) ? abs($step) : intval($step);
+		if (!preg_match('/^(\w|\.|`)+$/', $field)) {
+			return FALSE;
+		}
+		$field = strpos($field, '`') === FALSE ? '`' . $field . '`' : $field;
+		$sql = 'UPDATE ' . $this->_sDbName . '.' . $this->_sTblName . ' SET ' . $field . '=' . $field . $opt . $step . $this->_sWhere;
+		$rs = run_sql($sql, $this->_oDb);
+		if ($rs) {
+			// 成功返回影响行数
+			return affected_rows($this->_oDb);
+		}
+		return 0;
+	}
 
 	/**
 	 * 字段 增值
@@ -223,8 +298,7 @@ class CoreModel {
 	 * @return int 
 	 */
 	protected function increase($field, $step = 1) {
-		// TODO:: 有空再来
-		return 0;
+		return $this->_crease($field, $step, '+');
 	}
 
 	/**
@@ -235,8 +309,7 @@ class CoreModel {
 	 * @return int 
 	 */
 	protected function decrease($field, $step = 1) {
-		// TODO:: 有空再来
-		return 0;
+		return $this->_crease($field, $step, '-');
 	}
 
 	/**
@@ -246,6 +319,9 @@ class CoreModel {
 	 * @return object 
 	 */
 	protected function field($field) {
+		if (empty($field)) {
+			return $this;
+		}
 		if (is_array($field)) {
 			$new_field = array();
 			$dbobj = $this->_oDb;
@@ -258,8 +334,11 @@ class CoreModel {
 			$this->_sFields = implode(',', $new_field);
 		}
 		if (is_string($field)) {
-			// 去除空格
-			$this->_sFields = preg_replace('/(;|\s)+/', '', $field);
+			if (preg_match('/^(\w|\.|`|,)+$/', $field)) {
+				// 去除空格
+				$field = preg_replace('/(;|\s)+/', '', $field);
+				$this->_sFields = (strpos($field, '.') === FALSE) ? ((strpos($field, '`') === FALSE) ? '`' . $field . '`' : $field) : $field;
+			}
 		}
 		return $this;
 	}
@@ -296,7 +375,7 @@ class CoreModel {
 		if (!is_null($order)) {
 			$this->order($order);
 		}
-		$sql = 'SELECT ' . $this->_sFields . ' FROM ' . $this->_sDbName . '.' . $this->_sTblName .
+		$sql = 'SELECT ' . $this->_sFields . ' FROM ' . $this->_sDbName . '.' . $this->_sTblName . $this->_sAlias . $this->_sJoin .
 				$this->_sWhere . $this->_sOrder . ' LIMIT 1';
 		$data = get_line($sql, $this->_oDb);
 		return $data;
@@ -362,8 +441,8 @@ class CoreModel {
 	 * @return object
 	 */
 	protected function _as($name) {
-		if (preg_match('/^\w+$/', $name)) {
-			$this->_sAlias = ' AS `' . $name . '` ';
+		if (preg_match('/^(\w|`)+$/', $name)) {
+			$this->_sAlias = (strpos($name, '`') === FALSE) ? ' AS `' . $name . '` ' : ' AS ' . $name . ' ';
 		}
 		return $this;
 	}

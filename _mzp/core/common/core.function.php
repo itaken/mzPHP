@@ -43,9 +43,12 @@ function g($name) {
  * @return string 
  */
 function u($path = null, $param = array()) {
-	if (is_null($path)) {
+	if (is_null($path) || $path == '#') {
 		// 当前 URL
-		return SITE_URL . $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
+//		return SITE_URL . filter_input(INPUT_SERVER, 'PHP_SELF') . '?' . filter_input(INPUT_SERVER, 'QUERY_STRING');
+		return trim(SITE_URL, '/').  filter_input(INPUT_SERVER, 'REQUEST_URI');
+	}else if($path == '/' || $path == ''){
+		return SITE_URL;
 	}
 	$path = explode('/', $path);
 	if (!OPEN_SLINK) {
@@ -55,10 +58,101 @@ function u($path = null, $param = array()) {
 	$param_str = '';
 	if (!empty($param) && is_array($param)) {
 		foreach ($param as $key => $value) {
-			$param_str = '/' . $key . '/' . urlencode($value);
+			$param_str .= '/' . $key . '/' . urlencode($value);
 		}
 	}
 	return SITE_URL . $path[0] . '/' . $path[1] . $param_str . '.html';
+}
+
+/**
+ * 转编译 URL
+ * 
+ * @return string 
+ */
+function __deU() {
+	if (OPEN_SLINK) {
+		$path_arr = explode('/', str_replace('.html', '', filter_input(INPUT_SERVER, 'PATH_INFO')));  // 获取查询条件
+		$ctrl_arr = array();
+		foreach ($path_arr as $path) {
+			$path = trim($path);
+			if(empty($path)){
+				continue;
+			}
+			$ctrl_arr[] = $path;
+		}
+		$count = count($ctrl_arr);  // 总数
+		$param = array();
+		foreach ($_GET as $k => $v) {
+			$param[$k] = $v;
+		}
+		if ($count >= 2) {
+			if (preg_match('/^\w+$/', $ctrl_arr[0]) && preg_match('/^\w+$/', $ctrl_arr[1])) {
+				$controller = strtolower(strip_tags($ctrl_arr[0]));
+				$action = strtolower(strip_tags($ctrl_arr[1]));
+			}
+			if ($count > 2) {
+				// 传递的数据
+				for ($i = 2; $i < $count; $i+=2) {
+					$key = $ctrl_arr[$i];
+					if(is_string($key)){  //  && isset($ctrl_arr[$i + 1])
+						$value = isset($ctrl_arr[$i + 1]) ? urldecode($ctrl_arr[$i + 1]) : '';
+						$param[$key] = $value;
+						$_GET[$key] = $value;
+					}
+				}
+			}
+		}
+	} else {
+		$controller = strtolower(strip_tags(filter_input(INPUT_GET, 'c')));
+		$action = strtolower(strip_tags(filter_input(INPUT_GET, 'a')));
+	}
+	$controller = $GLOBALS['c'] = empty($controller) ? c('DEFAULT_CONTROLLER') : $controller;
+	$action = $GLOBALS['a'] = empty($action) ? c('DEFAULT_ACTION') : $action;
+	// 控制器与方法调用
+	$obj = ucwords($controller) . 'Controller';  // 组装类名
+	if (!method_exists($obj, $action)) {  // 判断类的方法十分存在
+		APP_DEBUG && die('--ERROR: Method - ' . $obj . '::' . $action . ' Not Found!');
+		call_user_func(array(new CoreController(), '_empty'));   // 抑制所有错误
+	}
+	return array(
+		'controller' => $obj,
+		'action' => $action,
+		'parameter' => _refle($obj, $action, $param),
+	);
+}
+
+/**
+ * 通过反射 匹配参数
+ * 
+ * @param string $controller
+ * @param string $action
+ * @param array $param
+ * @return array
+ */
+function _refle($controller, $action, $param) {
+	if (class_exists('ReflectionClass', FALSE)) {   // 反射
+//		$RC = new ReflectionClass($obj);
+//		$parameters = $RC->getMethod($action)->getParameters();  // 获取方法参数
+//		foreach ($parameters as $param) {
+//			$name = $param->name;
+//			$parameter[$name] = isset($parameter[$name]) ? $parameter[$name] : null;
+//		}
+		$matches = $mch = array();
+		$func_export = ReflectionMethod::export($controller, $action, TRUE);  // 整个方法输出
+		preg_match_all('/\[\s*\<optional\>\s*\$(\w)+\s*\=\s*(\w|\')+\s*]/isU', $func_export, $matches);
+		foreach ($matches[0] as $value) {
+			preg_match_all('/\$(\w+) \=(.*)]/', $value, $mch);
+			$name = $mch[1][0];
+			$value = trim($mch[2][0]);
+			if (strcasecmp($value, 'NULL') == 0) {
+				$value = null;
+			} else {
+				$value = trim(trim($value, '\''), '"');
+			}
+			$param[$name] = isset($param[$name]) ? $param[$name] : $value;
+		}
+	}
+	return $param;
 }
 
 /**
@@ -66,7 +160,7 @@ function u($path = null, $param = array()) {
  * 
  * @return array 
  */
-function tarce() {
+function _tarce() {
 	$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);  // 获取回溯
 	$back = array();
 	foreach ($trace as $value) {
@@ -96,26 +190,25 @@ function tarce() {
  * @return void
  */
 function assign() {
+	$args = func_get_args();   // 获取所有
 	$num = func_num_args();  // 参数个数
-	$data = array();
-	if ($num == 1) {
-		$data = func_get_arg(0);   // 第一个参数
-		$data = is_array($data) ? $data : array($data => '');
-	} elseif ($num == 2) {
-		$data = array(func_get_arg(0) => func_get_arg(1));
-	} else {
-		$args = func_get_args();
-		$i = 0;
-		foreach ($args as $v) {
-			if ($i % 2 == 0) {
-				// 判断是否是数字或字符串
-				if (is_numeric($v) || is_string($v)) {
-					$value = isset($args[$i + 1]) ? $args[$i + 1] : null;
-					$data[$v] = $value;
-				}
+	$data = isset($GLOBALS['__assign']) ? $GLOBALS['__assign'] : array();
+	$i = 0;
+	foreach ($args as $arg) {
+		if($num <= 1 ){
+			if(is_string($arg)){
+				$data = array($arg);
+			}elseif(is_array($arg)){
+				$data = array_merge($data, $arg);
 			}
-			$i ++;
+			continue;
 		}
+		if ($i % 2 == 0) {
+			$value = isset($args[$i + 1]) ? $args[$i + 1] : null;
+			$data[$arg] = $value;
+		}
+		$i ++;
+		
 	}
 	$GLOBALS['__assign'] = $data;
 }
@@ -131,7 +224,7 @@ function assign() {
 function render() {
 	$tpl_suffix = '.tpl.html';  // 模板后缀
 	$layout_file = 'public/extend.tpl.html';
-	$tpl = $___CSS___ = null;  // 错误信息
+	$tpl = $___CSS___ = $___JS___ = null;  // 错误信息
 	$tpl_depr = c('TPL_FILE_DEPR');  // 分割
 	$data = array(
 		// SEO
@@ -142,7 +235,7 @@ function render() {
 	if (isset($GLOBALS['__assign'])) {  // 已经assign数据,则叠加
 		$data = array_merge($data, $GLOBALS['__assign']);
 	}
-	$args = func_get_args();  // 获取参数
+	$args = array_merge($data, func_get_args());  // 获取参数
 	foreach ($args as $arg) {
 		if (empty($arg)) {
 			continue;
@@ -157,14 +250,17 @@ function render() {
 				$layout_file = strpos($layout_file, $tpl_suffix) ? $layout_file : $layout_file . $tpl_suffix;
 				continue;
 			}
-			$tpl .= $arg . $tpl_depr;
+			if(preg_match('/^(\w|\.|_|-|\/)+$/', $arg)){
+				$tpl .= strpos($arg, '/') ? $arg : $arg . $tpl_depr;
+				continue;
+			}
 		}
 	}
 	$exc = 'public' . $tpl_depr . 'info';  // 例外
 	$exception = strpos($tpl, $exc) !== FALSE ? TRUE : FALSE;  // 是否例外
 	if (empty($tpl) || $exception) {
 		// 没有模板文件, 使用回溯信息
-		$trace = tarce();
+		$trace = _tarce();
 		foreach ($trace as $value) {
 			if (empty($value['class'])) {
 				continue;
@@ -193,20 +289,28 @@ function render() {
 		APP_DEBUG && exit('"' . $layout_file . '" ERROR: FILE Not Found!!');
 		@call_user_func(array(new CoreController(), '_empty'));
 	}
-	is_array($data) && extract($data, EXTR_OVERWRITE);  // 如果是数组,则导入到当前的符号表中
+	if(is_array($data)){
+		extract($data, EXTR_OVERWRITE);  // 如果是数组,则导入到当前的符号表中
+		$GLOBALS['__assign'] = $data;
+	}
 	// 页面缓存
-	$_css_ = array();
+	$_css_ = $_js_ = array();
 	ob_start();
 	ob_implicit_flush(FALSE);  // 打开/关闭绝对刷送
 	require( $tpl_file );  // 引入模板
 	$___CONTENT___ = ob_get_clean();  // 获取并清空缓存
 	if (is_array($_css_)) {
-		foreach ($_css_ as $v) {
-			$file = MROOT . 'static/css/' . $v;
+		foreach ($_css_ as $css) {
+			$file = MROOT . 'static/css/' . $css;
 			file_exists($file) && $___CSS___ .= '<link href="' . str_replace(MROOT, SITE_URL, $file) . '" type="text/css" rel="stylesheet">' . PHP_EOL;
 		}
 	}
-	$GLOBALS['__assign'] = $data;
+	if(is_array($_js_)){
+		foreach ($_js_ as $js) {
+			$file = MROOT.'static/js/'.$js;
+			file_exists($file) && $___JS___ .= '<script type="text/javascript" src="' . str_replace(MROOT, SITE_URL, $file) . '"></script>' . PHP_EOL;
+		}
+	}
 	require( $layout_tpl );
 	exit;
 }
@@ -242,4 +346,26 @@ function json_return($data, $info = '', $status = '') {
 	);
 	header('Content-Type:application/json; charset=utf-8');  // 定义返回格式
 	exit(preg_replace('#\":\s*(null|false)#iUs', '":""', json_encode($return_arr)));
+}
+
+/**
+ * 载入库
+ * 
+ * @param string $libname 库名称  ( 示例: db:mysql.function [, images:image.class] )
+ * @return void 
+ */
+function Mlib($libname) {
+	$lib_arr = explode(',', $libname);
+	foreach ($lib_arr as $lib) {
+		$lib = str_replace(':', DS, trim($lib));
+		$func = LROOT . $lib . '.php';
+		if(file_exists($func)){
+			include_once($func);
+			continue;
+		}
+		if(APP_DEBUG){
+			die('--ERROR: '.$lib . '.php File Not Found!');
+		}
+		die('Server busy, please try again later!');
+	}
 }

@@ -7,15 +7,6 @@
 		<meta name="description" content="<?=$meta_description;?>" />
 		<link href="<?=img('favicon','public');?>" type="image/x-icon" rel="shortcut icon" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<style type="text/css">
-			body {
-				padding-top: 60px;
-				padding-bottom: 40px;
-			}
-			.sidebar-nav {
-				padding: 9px 0;
-			}
-		</style>
 		<link href="<?=stc('bootstrap.min.css','css');?>" type="text/css" rel="stylesheet">
 		<link href="<?=stc('bootstrap-theme.min.css','css');?>" type="text/css" rel="stylesheet">
 		<!--[if lt IE 9]>
@@ -24,6 +15,16 @@
 		<!--[if IE 6]>    
 			<link href="<?=stc('ie6.min.css','css');?>" rel="stylesheet">
 		<![endif]-->
+		<style type="text/css">
+			body {
+				padding-top: 60px;
+				padding-bottom: 40px;
+				font-family: microsoft yahei;
+			}
+			.sidebar-nav {
+				padding: 9px 0;
+			}
+		</style>
 		<script type="text/javascript" src="<?=stc('jquery-2.0.3.min.js','js');?>"></script>
 		<?=$___CSS___;?>
 	</head>
@@ -32,13 +33,19 @@
 			<div class="navbar-inner">
 				<div class="container">
 					<div class="navbar-header">
-						<a class="navbar-brand"><?=c('SITE_NAME')?></a>
+						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="#"><?=c('SITE_NAME')?></a>
 					</div>
 					<div class="navbar-collapse collapse">
 						<ul class="nav navbar-nav">
 							<li <?php if(g('a') == 'index') echo 'class="active"';?>><a href="<?=u('index/index',array('name'=>'mzPHP'));?>">首页</a></li>
+							<li <?php if(g('a') == 'test') echo 'class="active disabled"'; else echo 'class="disabled"';?>><a href="<?=u('index/test');?>">空操作</a></li>
 							<li <?php if(g('a') == 'about') echo 'class="active"';?>><a href="<?=u('index/about');?>">关于</a></li>
-							<li <?php if(g('a') == 'contact') echo 'class="active"';?>><a href="<?=u('index/contact');?>">联系</a></li>
 						</ul>
 					</div>
 				</div>
@@ -51,8 +58,8 @@
 				<p class="glyphicon glyphicon-arrow-up pull-right badge"><a href="#" class="badge">TOP</a></p>
 				<p>
 					&copy; 2014 &middot;
-					<strong>mzPHP</strong>&middot; 
-					REGEL
+					<strong>REGEL</strong>&middot; 
+					Power by <a href="https://github.com/itaken/mzPHP" target="_blank">mzPHP</a>
 				</p>
 				<p>&nbsp;</p>
 			</footer>
@@ -62,6 +69,7 @@
 		<![endif]-->
 		<script type="text/javascript" src="<?=stc('common.js','js');?>"></script>
 		<script type="text/javascript" src="<?=stc('bootstrap.min.js','js');?>"></script>
+		<?=$___JS___;?>
 		<div class="hidden">
 			<!-- 用于加载统计代码等隐藏元素 -->
 		</div>

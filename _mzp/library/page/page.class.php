@@ -1,5 +1,5 @@
 <?php
-
+defined('INI') or die('--PageCls--');
 /**
  * 分页 方法库
  * 
@@ -7,6 +7,6 @@
  * @since 2014-3-27
  * @version 1.0 Beta
  */
-defined('INI') or die('--PageFunc--');
-
-// TODO:: 用到再说.
+class Page{
+	
+}

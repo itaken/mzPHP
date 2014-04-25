@@ -28,7 +28,7 @@ class CoreController {
 			'meta_keywords' => c('DEFAULT_META_KEYWORDS'),
 			'meta_description' => c('DEFAULT_META_DESCRIPTION')
 		);
-		$cache_file = SROOT . md5(serialize($data)) . 'cache';  // 缓存文件
+		$cache_file = SROOT . md5(serialize($data)) . '.cache';  // 缓存文件
 		if (file_exists($cache_file)) {
 			if (time() - filemtime($cache_file) > 7 * 24 * 60 * 60) {
 				unlink($cache_file);
@@ -41,7 +41,7 @@ class CoreController {
 		$layout_tpl = MROOT . 'view/public/extend.tpl.html';  // 布局文件
 		if (file_exists($tpl_file) && file_exists($layout_tpl)) {
 			$_css_ = $match = array();
-			$___CSS___ = null;
+			$___CSS___ = $___JS___ = null;
 			extract($data, EXTR_OVERWRITE);
 			ob_start();
 			ob_implicit_flush(FALSE);

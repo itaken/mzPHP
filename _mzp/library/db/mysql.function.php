@@ -32,6 +32,7 @@ function db($host = null, $port = null, $user = null, $password = null, $db_name
 	if (isset($GLOBALS[$db_key])) {
 		$mysqli = $GLOBALS[$db_key];
 		if ($mysqli->ping()) {  // 判断 连接 是否 alive
+//			echo '---alive---';
 			return $mysqli;
 		}
 	}
