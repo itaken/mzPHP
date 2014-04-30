@@ -293,3 +293,61 @@ function is_get(){
 function is_post(){
 	return (filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'POST') ? TRUE : FALSE;
 }
+
+/**
+ * 生成 URL关键字
+ * 
+ * @param string $url 
+ * @return array | false
+ */
+function generate_url_key($url) {
+	if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
+		return FALSE;  // 非 URL
+	}
+	$matchs = array();
+	$host = parse_url($url, PHP_URL_HOST);
+	$uri_arr = explode('.', $host);
+	$uri_count = count($uri_arr);
+	$tld = 'org|com|net|gov|edu|info|biz|name|mobi|mil|pro|travel|museum|int|aero|post|rec|asia|arts|firm|info|nom|rec|store|web';  // 顶级域名
+	preg_match('/(' . $tld . ')\.+/i', $host, $matchs);
+	if (empty($matchs)) {
+		$url_key = $uri_arr[$uri_count - 3] . '.' . $uri_arr[$uri_count - 2] . '.' . $uri_arr[$uri_count - 1];
+	}else{
+		$url_key = $uri_arr[$uri_count - 4] . '.' . $uri_arr[$uri_count - 3] . '.' . $uri_arr[$uri_count - 2] . '.' . $uri_arr[$uri_count - 1];
+	}
+	return str_replace('www.', '', $url_key);
+}
+
+/**
+ * 生成随机 字符串
+ * 
+ * @param int $len 字符串长度
+ * @param int $type = 1 字符类型 0 纯数字 1 纯字母 2 数字字母混合
+ * @return string 
+ */
+function rand_string($len = 6, $type = 1) {
+	$len = abs(intval($len));
+	if ($len < 1) {
+		return '';
+	}
+	switch (intval($type)) {
+		case 0:
+			$key = '8901267345';
+			break;
+		case 1:
+			$key = 'UvVwdDeEfFgGhHiIjJkKlWxXyYzZaAbBcPqQrRsStTuCLmMnNoOp';
+			break;
+		case 2:
+			$key = '78eEfFgGhH90aAbBcCd12sStTuUvqQrR7654VwWxXyYzZ0983nNoOpP3456DiIjJkKlLmM21';
+			break;
+		default:
+			$key = 'hHifFgGUvVwStTyYzulLmMnNoOpPIjJkKdDeEqQrRsaAbBcCWxXZ';
+			break;
+	}
+	$max = intval(strlen($key)) - 1;
+	$str = '';
+	for ($i = 0; $i < $len; $i++) {
+		$str .= $key{mt_rand(0, $max)};
+	}
+	return $str;
+}

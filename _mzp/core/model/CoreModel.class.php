@@ -53,7 +53,7 @@ class CoreModel {
 			$tbl_name = $true_tbl;
 		}
 		$this->_sTblName = '`' . $tbl_name . '`';  // 完整表名
-		$this->_oDb = db();  // 数据库连接
+		
 	}
 
 	/**
@@ -79,7 +79,7 @@ class CoreModel {
 	 * @param string $relate 连接符
 	 * @return array 
 	 */
-	private function dealWithData($array, $tostring = FALSE, $relate = ',') {
+	private function _dataHandle($array, $tostring = FALSE, $relate = ',') {
 		$new_data = array();
 		$data_str = '';
 		$dbobj = $this->_oDb;
@@ -107,6 +107,21 @@ class CoreModel {
 	}
 
 	/**
+	 * 运行SQL
+	 * 
+	 * @param string $sql 
+	 * @return mixed 
+	 */
+	private function _runSQL($sql) {
+		$dbobj = $this->_oDb;
+		if(empty($dbobj)){
+			$dbobj = db();  // 数据库连接
+			$this->_oDb = $dbobj;
+		}
+		return run_sql($sql, $dbobj);
+	}
+	
+	/**
 	 * 更换表名
 	 * 
 	 * @param string $name 表名
@@ -116,7 +131,6 @@ class CoreModel {
 		if (is_string($name)) {
 			$this->_sTblName = $name;
 		}
-//		$this->_oDb = db();
 		return $this;
 	}
 
@@ -127,7 +141,7 @@ class CoreModel {
 	 * @return object 
 	 */
 	protected function data($array) {
-		$this->_aData = $this->dealWithData($array);
+		$this->_aData = $this->_dataHandle($array);
 		return $this;  // 连贯操作,返回对象
 	}
 
@@ -138,13 +152,13 @@ class CoreModel {
 	 * @return int  -false 失败 -0 非自增ID
 	 */
 	protected function insert($data = array()) {
-		$data = array_merge($this->_aData, $this->dealWithData($data));
+		$data = array_merge($this->_aData, $this->_dataHandle($data));
 		if (empty($data)) {
 			return 0;
 		}
 		$sql = 'INSERT INTO ' . $this->_sDbName . '.' . $this->_sTblName .
 				'(' . implode(',', array_keys($data)) . ') VALUES (' . (implode(',', array_values($data))) . ')';
-		$rs = run_sql($sql, $this->_oDb);
+		$rs = $this->_runSQL($sql);
 		if ($rs) {
 			$insert_id = insert_id($this->_oDb);
 //			// 获取 最后插入ID
@@ -169,7 +183,7 @@ class CoreModel {
 		$tmp = array();
 		$data = array_merge($this->_aData, $data);
 		foreach ($data as $value) {
-			$new_data = $this->dealWithData($value);
+			$new_data = $this->_dataHandle($value);
 			$field = implode(',', array_keys($new_data));
 			$tmp[$field][] = '(' . implode(',', array_values($new_data)) . ')';
 		}
@@ -178,7 +192,7 @@ class CoreModel {
 			$sql .= 'INSERT INTO ' . $this->_sDbName . '.' . $this->_sTblName .
 					'(' . $k . ') VALUES ' . implode(',', $v) . ';';
 		}
-		$rs = run_sql($sql, $this->_oDb);
+		$rs = $this->_runSQL($sql);
 		if ($rs) {
 			$insert_id = insert_id($this->_oDb);
 			return $insert_id;
@@ -203,7 +217,7 @@ class CoreModel {
 				(isset($where[1]) && in_array($where[1], array('AND', 'OR', 'and', 'or'))) && $relate = strtoupper($where[1]);
 				$where = $where[0];
 			}
-			$where_str = $this->dealWithData($where, TRUE, $relate);
+			$where_str = $this->_dataHandle($where, TRUE, $relate);
 			if ($where_str) {
 				$this->_sWhere = ' WHERE ' . $where_str;
 			}
@@ -227,7 +241,7 @@ class CoreModel {
 		if (empty($data) || !is_array($data)) {
 			return 0;
 		}
-		$data = $this->dealWithData($data, TRUE);  // 数据处理
+		$data = $this->_dataHandle($data, TRUE);  // 数据处理
 		if (empty($data)) {
 			return 0;
 		}
@@ -235,7 +249,7 @@ class CoreModel {
 			$this->where($where);
 		}
 		$sql = 'UPDATE ' . $this->_sDbName . '.' . $this->_sTblName . ' SET ' . $data . $this->_sWhere;
-		$rs = run_sql($sql, $this->_oDb);
+		$rs = $this->_runSQL($sql);
 		if ($rs) {
 			// 成功返回影响行数
 			return affected_rows($this->_oDb);
@@ -259,7 +273,7 @@ class CoreModel {
 			return 0;
 		}
 		$sql = 'DELETE FROM ' . $this->_sDbName . '.' . $this->_sTblName . $where;
-		$rs = run_sql($sql, $this->_oDb);
+		$rs = $this->_runSQL($sql);
 		if ($rs) {
 			// 成功返回影响行数
 			return affected_rows($this->_oDb);
@@ -282,7 +296,7 @@ class CoreModel {
 		}
 		$field = strpos($field, '`') === FALSE ? '`' . $field . '`' : $field;
 		$sql = 'UPDATE ' . $this->_sDbName . '.' . $this->_sTblName . ' SET ' . $field . '=' . $field . $opt . $step . $this->_sWhere;
-		$rs = run_sql($sql, $this->_oDb);
+		$rs = $this->_runSQL($sql);
 		if ($rs) {
 			// 成功返回影响行数
 			return affected_rows($this->_oDb);

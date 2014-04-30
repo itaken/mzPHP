@@ -16,6 +16,7 @@ class IndexController extends HomeController {
 	 */
 	public function index() {
 //		var_dump($_GET['name']);
+		
 		$test_mod = new TestModel();
 		$bar = $test_mod->sidebar();
 		assign('sidebar',$bar);

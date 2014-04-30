@@ -12,12 +12,10 @@
 					<ul class="nav nav-list">
 						<?php 
 						foreach( $sidebar as $key => $side ):
-						echo '<li class="nav-header">Sidebar '.$key.'</li>';
-						foreach($side as $v):
-						?>
-						<li><a href="#"><?=$v;?></a></li>
-						<?php
-						endforeach;
+							echo '<li class="nav-header">Sidebar '.$key.'</li>';
+							foreach($side as $v):
+								echo '<li><a href="#">'.$v.'</a></li>';
+							endforeach;
 						endforeach; 
 						?>
 					</ul>

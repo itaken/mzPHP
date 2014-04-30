@@ -36,7 +36,7 @@ function db($host = null, $port = null, $user = null, $password = null, $db_name
 			return $mysqli;
 		}
 	}
-	$mysqli = new mysqli($host, $user, $password, $db_name, intval($port)); // 初始化 mysqli
+	$mysqli = @new mysqli($host, $user, $password, $db_name, intval($port)); // 初始化 mysqli
 	if ($mysqli->connect_errno) {
 		$msg = APP_DEBUG ? ' < ' . $mysqli->connect_error . ' >' : '';
 		exit('--ERROR: Connect failed!' . $msg);
@@ -48,16 +48,22 @@ function db($host = null, $port = null, $user = null, $password = null, $db_name
 }
 
 /**
- * 转义 特殊字符
+ * 运行 SQL 语句
  * 
- * @param string $str SQL
- * @param object $db 数据库对象
- * @return string
+ * @param string $sql
+ * @param object $db 
+ * @return mixed
  */
-function escape_string($str, $db = NULL) {
+function run_sql($sql, $db = NULL) {
 	$db = is_null($db) ? db() : $db;
-	return $db->escape_string($str);
-//	return mysqli_real_escape_string($db, $str);
+	$GLOBALS['db']['last_sql'] = $sql;
+	$result = $db->query($sql);
+	if ($db->errno) {
+		// 发生错误, 记录错误信息
+		$GLOBALS['db']['last_error'] = $db->error;
+		return FALSE;
+	}
+	return $result;
 }
 
 /**
@@ -120,25 +126,6 @@ function affected_rows($db) {
 }
 
 /**
- * 运行 SQL 语句
- * 
- * @param string $sql
- * @param object $db 
- * @return mixed
- */
-function run_sql($sql, $db = NULL) {
-	$db = is_null($db) ? db() : $db;
-	$GLOBALS['db']['last_sql'] = $sql;
-	$result = $db->query($sql);
-	if ($db->errno) {
-		// 发生错误, 记录错误信息
-		$GLOBALS['db']['last_error'] = $db->error;
-		return FALSE;
-	}
-	return $result;
-}
-
-/**
  * 关闭数据库 
  * 
  * @param object $db
@@ -150,6 +137,19 @@ function close_db($db = NULL) {
 	$db_key = $GLOBALS['db']['key'];
 	unset($GLOBALS[$db_key]);
 	unset($GLOBALS['db']);
+}
+
+/**
+ * 转义 特殊字符
+ * 
+ * @param string $str SQL
+ * @param object $db 数据库对象
+ * @return string
+ */
+function escape_string($str, $db = NULL) {
+	$db = is_null($db) ? db() : $db;
+	return $db->escape_string($str);
+//	return mysqli_real_escape_string($db, $str);
 }
 
 /**

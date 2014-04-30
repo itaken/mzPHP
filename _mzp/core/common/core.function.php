@@ -57,11 +57,29 @@ function u($path = null, $param = array()) {
 				$param_str .= '/' . $key . '/' . urlencode($value);
 			}
 		}
-		return SITE_URL . $path . $param_str . '.html';
+//		return SITE_URL.'index.php/' . $path . $param_str . '.html';
+		return SITE_URL. $path . $param_str . '.html';
 	}
 	$path = explode('/', $path);
 	$url = SITE_URL . '?c=' . $path[0] . '&a=' . $path[1];
 	return empty($param) ? $url : $url . '&' . http_build_query($param);
+}
+
+/**
+ * 类自动加载
+ * 
+ * @param string $class 类名
+ * @return void 
+ */
+function __mzp_autoload($class) {
+	$matchs = array();
+	$mctime = preg_match('/(controller|model)$/i', $class, $matchs);
+	if ($mctime == 1) {
+		$patch = strtolower($matchs[0]) . DS . str_replace(array('controller', 'model'), '', $class) . '.class.php';
+		if (file_exists($file = MROOT . $patch) || file_exists($file = CROOT . $patch)) {
+			include($file);
+		}
+	}
 }
 
 /**
@@ -110,14 +128,18 @@ function __deU() {
 	$action = $GLOBALS['a'] = empty($action) ? c('DEFAULT_ACTION') : $action;
 	// 控制器与方法调用
 	$obj = ucwords($controller) . 'Controller';  // 组装类名
-	if (!method_exists($obj, $action)) {  // 判断类的方法十分存在
+	if(!is_callable(array($obj,$action))){
 		APP_DEBUG && die('--ERROR: Method - ' . $obj . '::' . $action . ' Not Found!');
-		call_user_func(array(new CoreController(), '_empty'));   // 抑制所有错误
+		call_user_func(array(new CoreController(), '_empty'));   // 显示空操作
 	}
+//	if (!method_exists($obj, $action)) {  // 判断类的方法是否存在
+//		APP_DEBUG && die('--ERROR: Method - ' . $obj . '::' . $action . ' Not Found!');
+//		call_user_func(array(new CoreController(), '_empty'));   // 显示空操作
+//	}
 	return array(
 		'controller' => $obj,
 		'action' => $action,
-		'parameter' => _refle($obj, $action, $param),
+		'parameter' => __refle($obj, $action, $param),
 	);
 }
 
@@ -129,7 +151,7 @@ function __deU() {
  * @param array $param
  * @return array
  */
-function _refle($controller, $action, $param) {
+function __refle($controller, $action, $param) {
 	if(empty($param)){
 		return $param;
 	}

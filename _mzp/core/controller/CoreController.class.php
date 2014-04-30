@@ -28,13 +28,15 @@ class CoreController {
 			'meta_keywords' => c('DEFAULT_META_KEYWORDS'),
 			'meta_description' => c('DEFAULT_META_DESCRIPTION')
 		);
-		$cache_file = SROOT . md5(serialize($data).OPEN_SLINK) . '.cache';  // 缓存文件
-		if (file_exists($cache_file)) {
-			if (time() - filemtime($cache_file) > 7 * 24 * 60 * 60) {
-				unlink($cache_file);
-			} else {
-				include($cache_file);
-				exit;
+		if(defined('SROOT')){
+			$cache_file = SROOT . md5(serialize($data).OPEN_SLINK) . '.cache';  // 缓存文件
+			if (file_exists($cache_file)) {
+				if (time() - filemtime($cache_file) > 7 * 24 * 60 * 60) {
+					unlink($cache_file);
+				} else {
+					include($cache_file);
+					exit;
+				}
 			}
 		}
 		$tpl_file = CROOT . 'view/error.tpl.html';  // 模板文件
@@ -65,7 +67,9 @@ class CoreController {
 			require( $layout_tpl );
 			$cache_data = ob_get_contents();
 			ob_end_flush();
-			file_put_contents($cache_file, $cache_data, LOCK_EX);  // 写入 独占锁
+			if(defined('SROOT')){
+				file_put_contents($cache_file, $cache_data, LOCK_EX);  // 写入 独占锁
+			}
 			exit();
 		}
 		exit('ERROR: <a href="https://github.com/itaken/mzPHP" title="mzPHP on GIT!">mzPHP</a> system error!');
