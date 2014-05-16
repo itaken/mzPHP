@@ -7,7 +7,7 @@ defined('INI') or die('--IndexCtrl--');
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 Beta
+ * @version 1.0 RC1
  */
 class IndexController extends HomeController {
 
@@ -31,11 +31,11 @@ class IndexController extends HomeController {
 	}
 
 	/**
-	 * 联系我们
+	 * 使用文档
 	 */
-	public function contact() {
-		$msg = '微博 - <a href="http://weibo.com/u/3217812867" target="_blank">@此处应有字幕</a>';
-		info_page($msg, '想找人瞎扯?', '联系我');
+	public function document() {
+		assign('meta_title', '使用文档 --mzPHP');
+		render();
 	}
 
 }

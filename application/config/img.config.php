@@ -7,11 +7,19 @@ defined('INI') or die('--ImgConf--');
  * 
  * @author regel chen <regelhh@gmail.com>
  * @since 2013-11-16
- * @version 1.0 Beta
+ * @version 1.0 RC1
  */
 return array(
-	/* 图片保存位置 */
-	'IMAGE_PATH' => MROOT . 'static/imgs/',
+	/* 图片操作 */
+	'IMAGE_HANDLING' => array(
+		'path' => MROOT . 'static/imgs/', // 图片路径
+		'name' => '', // 图片名称
+		'nameFunc' => 'uniqid_string', // 图片命名方法
+		'maxSize' => 0, // 最大尺寸
+		'formatLimts' => array('jpg','jpeg','png','gif'), // 图片限制
+		'doThumb' => FALSE, // 缩略图
+		'overwrite' => FALSE, // 重复是否覆盖
+	),
 	/* 图片缩略图 */
 	'IMAGE_THUMB' => array(
 		'path' => MROOT . 'static/imgs/thumb/', // 缩略图保存位置
@@ -24,7 +32,9 @@ return array(
 			'direction' => 'MC', // 位置  LT左上 MT中上 RT右上 LM左中 MC居中 RM右中 LB左下 MB中下 RB右下 
 			'constrain' => TRUE, // 是否 等比压缩
 		), // 固定大小 配置
-		'onMark' => TRUE, // 是否添加水印
+		'onMark' => FALSE, // 是否添加水印
+		'overwrite' => FALSE, // 重复是否覆盖
+		'retainedOriginal' => TRUE, // 保留原图
 	),
 	/* 图片水印 */
 	'IMAGE_MARK' => array(
@@ -33,7 +43,7 @@ return array(
 		'textConf' => array(
 			'text' => '爱我中国', // 文字文本
 			'color' => 'blue', // 字体颜色
-			'font' => MROOT . 'static/fonts/lxksz.ttf', // 字体 ( 必须,非中文 )
+			'font' => MROOT . 'static/fonts/fontello.ttf', // 字体 ( 必须,非中文 )
 			'size' => 20, // 字体大小 ( 单位 点 )
 			'angle' => 0, // 文字角度 
 			'direction' => 'MB', // 文本位置  LT左上 MT中上 RT右上 MC居中 LB左下 MB中下 RB右下

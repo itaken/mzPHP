@@ -5,28 +5,35 @@
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 Beta
+ * @version 1.0 RC1
  */
 defined('INI') or die('--CFunc--');
+include('private.function.php');
 
 /**
- * 获取 配置内容
+ * 获取 配置内容  
+ * @example c('CACHE_EXPIRE') -获取缓存有效期
  * 
  * @param string $str 配置名称
  * @return mixed 配置值
  */
 function c($str) {
-	$c_conf_file = CROOT . 'config' . DS . 'core.config.php';  // 核心配置
-	$c_conf = file_exists($c_conf_file) ? include($c_conf_file) : array();
-	// 引入项目配置
-	$app_conf_file = MROOT . 'config' . DS . 'conf.inc';
-	$app_conf = file_exists($app_conf_file) ? include($app_conf_file) : array();
-	$conf = array_merge($c_conf, $app_conf);
+	$conf = isset($GLOBALS['__Mconf']) ? $GLOBALS['__Mconf'] : array();
+	if (empty($conf)) {
+		$c_conf_file = CROOT . 'config' . DS . 'core.config.php';  // 核心配置
+		$c_conf = file_exists($c_conf_file) ? include($c_conf_file) : array();
+		// 引入项目配置
+		$app_conf_file = AROOT . 'config' . DS . 'conf.inc';
+		$app_conf = file_exists($app_conf_file) ? include($app_conf_file) : array();
+		$conf = array_merge($c_conf, $app_conf);
+		$GLOBALS['__Mconf'] = $conf;
+	}
 	return isset($conf[$str]) ? $conf[$str] : null;
 }
 
 /**
  * 获取 gloab 变量
+ * @example g('a') -获取全局变量a
  * 
  * @param string $name  变量名称
  * @return mixed
@@ -36,307 +43,134 @@ function g($name) {
 }
 
 /**
- * 生成 URL
- * 
+ * 生成 URL 
+ * @example u('index/index') -生成指向 index 控制器 index 操作的链接
+
  * @param string $path url路径
  * @param array $param url参数
  * @return string 
  */
 function u($path = null, $param = array()) {
-	if (is_null($path) || $path == '#') {
+	if (is_null($path) || $path == '#' || empty($path)) {
 		// 当前 URL
-//		return SITE_URL . filter_input(INPUT_SERVER, 'PHP_SELF') . '?' . filter_input(INPUT_SERVER, 'QUERY_STRING');
-		return trim(SITE_URL, '/').  filter_input(INPUT_SERVER, 'REQUEST_URI');
-	}else if($path == '/' || $path == '' || strpos($path, '/') === FALSE){
+		$curpath = trim(SITE_URL, '/') . filter_input(INPUT_SERVER, 'REQUEST_URI');
+		if (empty($param)) {
+			return $curpath;
+		}
+		$param = http_build_query($param);
+		return strpos($curpath, '?') > 0 ? $curpath . '&' . $param : $curpath . '?' . $param;
+	}
+	// 正则匹配, 更自由的定义规则
+	$url_path = preg_split('#[/\:\#\-\|\\\&=,\s]+#', $path, 0, PREG_SPLIT_NO_EMPTY);
+	if (count($url_path) !== 2) {
 		return SITE_URL;
 	}
-	if (OPEN_SLINK) {
-		$param_str = '';
-		if (!empty($param) && is_array($param)) {
-			foreach ($param as $key => $value) {
-				$param_str .= '/' . $key . '/' . urlencode($value);
-			}
-		}
-//		return SITE_URL.'index.php/' . $path . $param_str . '.html';
-		return SITE_URL. $path . $param_str . '.html';
+	$controller = $url_path[0];
+	$action = $url_path[1];
+	if (!OPEN_SLINK) {
+		// 未开启 URL重写
+		$url = SITE_URL . '?_c=' . $controller . '&_a=' . $action;
+		return empty($param) ? $url : ($url . '&' . http_build_query($param));
 	}
-	$path = explode('/', $path);
-	$url = SITE_URL . '?c=' . $path[0] . '&a=' . $path[1];
-	return empty($param) ? $url : $url . '&' . http_build_query($param);
-}
-
-/**
- * 类自动加载
- * 
- * @param string $class 类名
- * @return void 
- */
-function __mzp_autoload($class) {
-	$matchs = array();
-	$mctime = preg_match('/(controller|model)$/i', $class, $matchs);
-	if ($mctime == 1) {
-		$patch = strtolower($matchs[0]) . DS . str_replace(array('controller', 'model'), '', $class) . '.class.php';
-		if (file_exists($file = MROOT . $patch) || file_exists($file = CROOT . $patch)) {
-			include($file);
+	$param_str = '';
+	if (!empty($param) && is_array($param)) {
+		foreach ($param as $key => $value) {
+			$param_str .= '/' . $key . '/' . urlencode($value);
 		}
 	}
-}
-
-/**
- * 转编译 URL
- * 
- * @return string 
- */
-function __deU() {
-	$param = array();
-	if (OPEN_SLINK) {
-		$path_arr = explode('/', str_replace('.html', '', filter_input(INPUT_SERVER, 'PATH_INFO')));  // 获取查询条件
-		$ctrl_arr = array();
-		foreach ($path_arr as $path) {
-			$path = trim($path);
-			if(empty($path)){
-				continue;
-			}
-			$ctrl_arr[] = $path;
-		}
-		$count = count($ctrl_arr);  // 总数
-		foreach ($_GET as $k => $v) {
-			$param[$k] = $v;
-		}
-		if ($count >= 2) {
-			if (preg_match('/^\w+$/', $ctrl_arr[0]) && preg_match('/^\w+$/', $ctrl_arr[1])) {
-				$controller = strtolower(strip_tags($ctrl_arr[0]));
-				$action = strtolower(strip_tags($ctrl_arr[1]));
-			}
-			if ($count > 2) {
-				// 传递的数据
-				for ($i = 2; $i < $count; $i+=2) {
-					$key = $ctrl_arr[$i];
-					if(is_string($key)){  //  && isset($ctrl_arr[$i + 1])
-						$value = isset($ctrl_arr[$i + 1]) ? urldecode($ctrl_arr[$i + 1]) : '';
-						$param[$key] = $value;
-						$_GET[$key] = $value;
-					}
-				}
-			}
-		}
-	} else {
-		$controller = strtolower(strip_tags(filter_input(INPUT_GET, 'c')));
-		$action = strtolower(strip_tags(filter_input(INPUT_GET, 'a')));
-	}
-	$controller = $GLOBALS['c'] = empty($controller) ? c('DEFAULT_CONTROLLER') : $controller;
-	$action = $GLOBALS['a'] = empty($action) ? c('DEFAULT_ACTION') : $action;
-	// 控制器与方法调用
-	$obj = ucwords($controller) . 'Controller';  // 组装类名
-	if(!is_callable(array($obj,$action))){
-		APP_DEBUG && die('--ERROR: Method - ' . $obj . '::' . $action . ' Not Found!');
-		call_user_func(array(new CoreController(), '_empty'));   // 显示空操作
-	}
-//	if (!method_exists($obj, $action)) {  // 判断类的方法是否存在
-//		APP_DEBUG && die('--ERROR: Method - ' . $obj . '::' . $action . ' Not Found!');
-//		call_user_func(array(new CoreController(), '_empty'));   // 显示空操作
-//	}
-	return array(
-		'controller' => $obj,
-		'action' => $action,
-		'parameter' => __refle($obj, $action, $param),
-	);
-}
-
-/**
- * 通过反射 匹配参数
- * 
- * @param string $controller
- * @param string $action
- * @param array $param
- * @return array
- */
-function __refle($controller, $action, $param) {
-	if(empty($param)){
-		return $param;
-	}
-	if (class_exists('ReflectionClass', FALSE)) {   // 反射
-//		$RC = new ReflectionClass($obj);
-//		$parameters = $RC->getMethod($action)->getParameters();  // 获取方法参数
-//		foreach ($parameters as $param) {
-//			$name = $param->name;
-//			$parameter[$name] = isset($parameter[$name]) ? $parameter[$name] : null;
-//		}
-		$matches = $mch = array();
-		$func_export = ReflectionMethod::export($controller, $action, TRUE);  // 整个方法输出
-		preg_match_all('/\[\s*\<optional\>\s*\$(\w)+\s*\=\s*(\w|\')+\s*]/isU', $func_export, $matches);
-		foreach ($matches[0] as $value) {
-			preg_match_all('/\$(\w+) \=(.*)]/', $value, $mch);
-			$name = $mch[1][0];
-			$value = trim($mch[2][0]);
-			if (strcasecmp($value, 'NULL') == 0) {
-				$value = null;
-			} else {
-				$value = trim(trim($value, '\''), '"');
-			}
-			$param[$name] = isset($param[$name]) ? $param[$name] : $value;
-		}
-	}
-	return $param;
-}
-
-/**
- * 回溯 解析
- * 
- * @return array 
- */
-function _tarce() {
-	$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);  // 获取回溯
-	$back = array();
-	foreach ($trace as $value) {
-		$func = $value['function'];
-		if (strcmp($func, __FUNCTION__) == 0) {
-			continue;
-		}
-		if (isset($value['file'])) {
-			if (strpos($value['file'], 'mzp.ini.php') !== FALSE) {
-				break;
-			}
-		}
-		$cls = isset($value['class']) ? $value['class'] : null;
-		$back[] = array(
-			'function' => $func,
-			'class' => $cls,
-		);
-	}
-	return $back;
+	return SITE_URL . $controller . '/' . $action . $param_str . '.html';
 }
 
 /**
  * 数据分发 ( 任意个参数 )
+ * @example array('name'=>'regel') | 'name','regel' | 'name','regel','msg','test'  
  * 
  * @args mixed 不固定参数
- *  ( 示例: array('name'=>'regel') | 'name','regel' | 'name','regel','msg','test' )
  * @return void
  */
 function assign() {
 	$args = func_get_args();   // 获取所有
-	$num = func_num_args();  // 参数个数
 	$data = isset($GLOBALS['__assign']) ? $GLOBALS['__assign'] : array();
-	$i = 0;
-	foreach ($args as $arg) {
-		if($num <= 1 ){
-			if(is_string($arg)){
-				$data = array($arg);
-			}elseif(is_array($arg)){
-				$data = array_merge($data, $arg);
-			}
-			continue;
-		}
-		if ($i % 2 == 0) {
-			$value = isset($args[$i + 1]) ? $args[$i + 1] : null;
-			$data[$arg] = $value;
-		}
-		$i ++;
-		
-	}
-	$GLOBALS['__assign'] = $data;
+	$GLOBALS['__assign'] = __args_handle($args, $data);
 }
 
 /**
  * 模板输出 类似ThinkPHP的display
+ * @example info.tpl.html' | array('meta_title'=>'regel') | array('msg'=>'Just Test!'),'public/info.tpl.html' | 'public','info' | array(...),'public','info' 
+ *   ( 数据必须使用array类型, 模板必须使用string类型 , 更改布局使用 L:public/extend | L:public/extend.tpl.html 格式)
+ *   ( 自定义模板 支持的自定义模板连接符号: "/"、":"、"|"、"." 四种. 例如: index/index )
  * 
  * @args mixed 内容数据 | 模板子目录/模板名称 
- *   ( 示例: 'info.tpl.html' | array('meta_title'=>'regel') | array('msg'=>'Just Test!'),'public/info.tpl.html' | 'public','info' | array(...),'public','info' )
- *   ( 数据必须使用array类型, 模板必须使用string类型 , 更改布局使用 L:public/extend | L:public/extend.tpl.html 格式)
  * @return void 
  */
 function render() {
-	$tpl_suffix = '.tpl.html';  // 模板后缀
-	$layout_file = 'public/extend.tpl.html';
-	$tpl = $___CSS___ = $___JS___ = null;  // 错误信息
-	$tpl_depr = c('TPL_FILE_DEPR');  // 分割
-	$data = array(
-		// SEO
-		'meta_title' => c('DEFAULT_META_TITLE'),
-		'meta_keywords' => c('DEFAULT_META_KEYWORDS'),
-		'meta_description' => c('DEFAULT_META_DESCRIPTION')
-	);
-	if (isset($GLOBALS['__assign'])) {  // 已经assign数据,则叠加
-		$data = array_merge($data, $GLOBALS['__assign']);
+	$args = func_get_args(); // 获取参数
+	$handle = __render_handle($args);
+	$cache_name = var_export($handle, TRUE);
+	$contents = SFile($cache_name);
+	if (!empty($contents)) {
+		HTTPCache($contents);
 	}
-	$args = array_merge($data, func_get_args());  // 获取参数
-	foreach ($args as $arg) {
-		if (empty($arg)) {
-			continue;
-		}
-		if (is_array($arg)) {
-			// 数据 使用assign数据
-			$data = array_merge($data, $arg);
-		}
-		if (is_string($arg)) {
-			if (stripos($arg, 'l:') === 0) {
-				$layout_file = substr($arg, 2);
-				$layout_file = strpos($layout_file, $tpl_suffix) ? $layout_file : $layout_file . $tpl_suffix;
-				continue;
-			}
-			if(preg_match('/^(\w|\.|_|-|\/)+$/', $arg)){
-				$tpl .= strpos($arg, '/') ? $arg : $arg . $tpl_depr;
-				continue;
-			}
-		}
-	}
-	$exc = 'public' . $tpl_depr . 'info';  // 例外
-	$exception = strpos($tpl, $exc) !== FALSE ? TRUE : FALSE;  // 是否例外
-	if (empty($tpl) || $exception) {
-		// 没有模板文件, 使用回溯信息
-		$trace = _tarce();
-		foreach ($trace as $value) {
-			if (empty($value['class'])) {
-				continue;
-			}
-			$layout = strtolower(str_replace('Controller', '', $value['class']));
-			$sharp = $value['function'];
-			$tpl = $exception ? $exc . $tpl_suffix : $layout . $tpl_depr . $sharp . $tpl_suffix;  // 回溯组装模板
-			break;
-		}
-	} else {
-		$tpl_arr = explode($tpl_depr, $tpl);
-		$layout = $tpl_arr[0];
-		$sharp = $tpl_arr[1];
-		$tpl = strpos($tpl, $tpl_suffix) ? trim($tpl, $tpl_depr) : trim($tpl, $tpl_depr) . $tpl_suffix;
-	}
-	$GLOBALS['c'] = $layout;
-	$GLOBALS['a'] = $sharp;
-	// 载入模板
-	$tpl_file = MROOT . 'view/' . $tpl;  // 完整路径
-	if (!file_exists($tpl_file)) {
-		APP_DEBUG && exit('"' . $tpl . '" ERROR: FILE Not Found!!');
+	$layout = $handle['layout'];
+	$tpl = $handle['tpl'];
+	$_path = c('TPL_FILE_PATH');
+	$tpl_file = $_path . $tpl;  // 完整 模板路径
+	if (!file_exists($tpl_file)) {  // 模板文件 不存在
+		APP_DEBUG && exit('"' . $tpl . '" ERROR: TEMPLET FILE Not Found!!');
 		@call_user_func(array(new CoreController(), '_empty'));
 	}
-	$layout_tpl = MROOT . 'view/' . $layout_file;  // 布局文件
-	if (!file_exists($layout_tpl)) {
-		APP_DEBUG && exit('"' . $layout_file . '" ERROR: FILE Not Found!!');
+	$layout_file = $_path . $layout;  // 完整 布局文件
+	if (!file_exists($layout_file)) {   // 布局文件 不存在
+		APP_DEBUG && exit('"' . $layout . '" ERROR: LAYOUT FILE Not Found!!');
 		@call_user_func(array(new CoreController(), '_empty'));
 	}
-	if(is_array($data)){
-		extract($data, EXTR_OVERWRITE);  // 如果是数组,则导入到当前的符号表中
-		$GLOBALS['__assign'] = $data;
+	$param = $handle['param'];
+	if (is_array($param)) {
+		extract($param, EXTR_OVERWRITE);  // 如果是数组,则导入到当前的符号表中
 	}
-	// 页面缓存
-	$_css_ = $_js_ = array();
+	$_css_ = $_js_ = array();   // js / css 文件集
 	ob_start();
 	ob_implicit_flush(FALSE);  // 打开/关闭绝对刷送
 	require( $tpl_file );  // 引入模板
-	$___CONTENT___ = ob_get_clean();  // 获取并清空缓存
-	if (is_array($_css_)) {
-		foreach ($_css_ as $css) {
-			$file = MROOT . 'static/css/' . $css;
-			file_exists($file) && $___CSS___ .= '<link href="' . str_replace(MROOT, SITE_URL, $file) . '" type="text/css" rel="stylesheet">' . PHP_EOL;
+	$GLOBALS['___CONTENT___'] = ob_get_clean();  // 获取并清空缓存
+	foreach ($_css_ as $css) {
+		$file = c('STATIC_FILE_PATH') . 'css/' . $css;
+		if (file_exists($file)) {
+			@$GLOBALS['___CSS___'] .= '<link href="' . str_replace(MROOT, SITE_URL, $file) . '" type="text/css" rel="stylesheet">' . PHP_EOL;
 		}
 	}
-	if(is_array($_js_)){
-		foreach ($_js_ as $js) {
-			$file = MROOT.'static/js/'.$js;
-			file_exists($file) && $___JS___ .= '<script type="text/javascript" src="' . str_replace(MROOT, SITE_URL, $file) . '"></script>' . PHP_EOL;
+	foreach ($_js_ as $js) {
+		$file = c('STATIC_FILE_PATH') . 'js/' . $js;
+		if (file_exists($file)) {
+			@$GLOBALS['___JS___'] .= '<script type="text/javascript" src="' . str_replace(MROOT, SITE_URL, $file) . '"></script>' . PHP_EOL;
 		}
 	}
-	require( $layout_tpl );
+	ob_start();
+	require( $layout_file );
+	$cache_data = ob_get_contents();  // 获取缓存时间
+	ob_end_flush();
+	SFile($cache_name, $cache_data, c('CACHE_EXPIRE'));
+	exit;
+}
+
+/**
+ * 推送缓存内容
+ * 
+ * @param string $contents 输出内容
+ * @return void 
+ */
+function HTTPCache($contents) {
+	header('Content-Type:text/html;charset=utf-8');
+	header('Cache-Control: public, must-revalidate');
+	$expires = gmdate('l d F Y H:i:s', time() + c('CACHE_EXPIRE') * 60) . ' GMT';
+	header('Expires:' . $expires);
+	$Etag = md5($contents);  // 设定 Etag key
+	if (array_key_exists('HTTP_IF_NONE_MATCH', $_SERVER) && filter_input(INPUT_SERVER, 'HTTP_IF_NONE_MATCH') == $Etag) {
+		header('HTTP/1.1 304 Not Modified');
+	} else {
+		header('Etag:' . $Etag);
+		echo $contents;
+	}
 	exit;
 }
 
@@ -370,13 +204,57 @@ function json_return($data, $info = '', $status = '') {
 		'status' => $status
 	);
 	header('Content-Type:application/json; charset=utf-8');  // 定义返回格式
+	header('Cache-Control: no-cache, must-revalidate');
+	header('Pragma: no-cache');  // 不缓存
+	header('Expires: 0');
 	exit(preg_replace('#\":\s*(null|false)#iUs', '":""', json_encode($return_arr)));
 }
 
 /**
- * 载入库
+ * 文件缓存
  * 
- * @param string $libname 库名称  ( 示例: db:mysql.function [, images:image.class] )
+ * @param string $name 缓存名称
+ * @param string $data 缓存数据
+ * @param int $expire 有效期 ( 单位: 分钟 )
+ * @return mixed
+ */
+function SFile($name, $data = '', $expire = null) {
+	$cache_file = SROOT . md5($name . OPEN_SLINK) . '.cache';
+	if (!is_cache() || APP_DEBUG) {  // 不缓存
+		if (file_exists($cache_file)) {
+			unlink($cache_file);
+		}
+		return FALSE;
+	}
+	if (is_null($data)) {  // 数据为 null 时, 表示 清空缓存
+		if (file_exists($cache_file)) {
+			unlink($cache_file);
+		}
+		return TRUE;
+	}
+	if ('' === $data) {  // 未传递 数据时, 表示 获取缓存
+		if (file_exists($cache_file)) {
+			if (0 === $expire) {
+				return file_get_contents($cache_file);
+			}
+			// 判断 缓存是否过期
+			$mtime = filemtime($cache_file);
+			$expire = is_null($expire) ? c('CACHE_EXPIRE') : $expire;
+			if (time() - $mtime < intval($expire) * 60) {
+				return file_get_contents($cache_file);
+			}
+		}
+		return FALSE;
+	}
+	file_put_contents($cache_file, $data, LOCK_EX);
+	return TRUE;
+}
+
+/**
+ * 载入库
+ * @example db:mysql.function [, images:image.class] 
+ * 
+ * @param string $libname 库名称 
  * @return void 
  */
 function Mlib($libname) {
@@ -384,12 +262,12 @@ function Mlib($libname) {
 	foreach ($lib_arr as $lib) {
 		$lib = str_replace(':', DS, trim($lib));
 		$func = LROOT . $lib . '.php';
-		if(file_exists($func)){
+		if (file_exists($func)) {
 			include_once($func);
 			continue;
 		}
-		if(APP_DEBUG){
-			die('--ERROR: '.$lib . '.php File Not Found!');
+		if (APP_DEBUG) {
+			die('--ERROR: ' . $lib . '.php File Not Found!');
 		}
 		die('Server busy, please try again later!');
 	}

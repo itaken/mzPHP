@@ -5,7 +5,7 @@
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-22
- * @version 1.0 Beta
+ * @version 1.0 RC1
  */
 defined('INI') or die('--MysqliFunc--');
 
@@ -41,7 +41,7 @@ function db($host = null, $port = null, $user = null, $password = null, $db_name
 		$msg = APP_DEBUG ? ' < ' . $mysqli->connect_error . ' >' : '';
 		exit('--ERROR: Connect failed!' . $msg);
 	}
-	$mysqli->set_charset('utf8');  // 设置编码格式
+	$mysqli->set_charset(c('CHART_SET'));  // 设置编码格式
 //	$mysqli->select_db($db_name);  // 选择数据库
 	$GLOBALS[$db_key] = $mysqli;
 	return $mysqli;

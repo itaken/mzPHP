@@ -5,7 +5,7 @@
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-23
- * @version 1.0 Beta
+ * @version 1.0 RC1
  */
 defined('INI') or die('--AFunc--');
 
@@ -35,12 +35,12 @@ function stop_attack($value, $filt_req) {
 }
 
 /**
- * 是否 缓存
+ * 获取精确时间
  * 
- * @return boolean -true 缓存 -false 不缓存
+ * @return float
  */
-function is_cache() {
-	return isset($_GET['_cache']) ? TRUE : FALSE;
+function get_time() {
+	return number_format(microtime(TRUE), 6, '.', '');
 }
 
 /**
@@ -53,12 +53,30 @@ function is_debug() {
 }
 
 /**
- * 获取精确时间
+ * 是否 缓存
  * 
- * @return float
+ * @return boolean -true 缓存 -false 不缓存
  */
-function get_time() {
-	return number_format(microtime(TRUE), 6, '.', '');
+function is_cache() {
+	return isset($_GET['_no_cache']) ? FALSE : TRUE;
+}
+
+/**
+ * 是否 GET 提交
+ * 
+ * @return boolean - true 是
+ */
+function is_get() {
+	return (filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'GET') ? TRUE : FALSE;
+}
+
+/**
+ * 是否 POST 提交
+ * 
+ * @return boolean - true 是
+ */
+function is_post() {
+	return (filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'POST') ? TRUE : FALSE;
 }
 
 /**
@@ -66,7 +84,7 @@ function get_time() {
  * 
  * @return boolean -true 是
  */
-function is_ajax_request() {
+function is_ajax() {
 	$headers = apache_request_headers();
 	return (isset($headers['X-Requested-With']) && ( $headers['X-Requested-With'] == 'XMLHttpRequest' )) ||
 			(isset($headers['x-requested-with']) && ($headers['x-requested-with'] == 'XMLHttpRequest' ));
@@ -94,45 +112,31 @@ if (!function_exists('apache_request_headers')) {
 }
 
 /**
- * ajax 返回
- * 
- * @param string $data 返回的数据
- * @return void 
- */
-function ajax_echo($data) {
-	if (!headers_sent()) {
-		header("Content-Type:text/html;charset=utf-8");
-		header("Cache-Control: no-cache, must-revalidate");
-		header("Pragma: no-cache");
-	}
-	exit($data);
-}
-
-/**
  * 判断是否 手机请求
  * 
  * @return boolean -true 是
  */
-function is_mobile_request() {
+function is_mobile() {
 	if (isset($_SERVER['HTTP_X_WAP_PROFILE'])) {
 		return TRUE;
 	}
 	if (isset($_SERVER['HTTP_PROFILE'])) {
 		return TRUE;
 	}
-	if (strpos(strtolower($_SERVER['ALL_HTTP']), 'operamini') !== false) {
+	if (strpos(strtolower(filter_input(INPUT_SERVER, 'ALL_HTTP')), 'operamini') !== false) {
 		return TRUE;
 	}
-	if (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'windows phone') !== false) {
+	if (strpos(strtolower(filter_input(INPUT_SERVER, 'HTTP_USER_AGENT')), 'windows phone') !== false) {
 		return TRUE;
 	}
-	if (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'windows') !== false) {
+	if (strpos(strtolower(filter_input(INPUT_SERVER, 'HTTP_USER_AGENT')), 'windows') !== false) {
 		return FALSE;
 	}
-	if ((isset($_SERVER['HTTP_ACCEPT'])) and ( strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/vnd.wap.xhtml+xml') !== false)) {
+	if ((isset($_SERVER['HTTP_ACCEPT'])) && ( strpos(strtolower(filter_input(INPUT_SERVER, 'HTTP_ACCEPT')), 'application/vnd.wap.xhtml+xml') !== false)) {
 		return TRUE;
 	}
-	if (preg_match('/(up.browser|up.link|mmp|symbian|smartphone|midp|wap|phone|iphone|ipad|ipod|android|xoom)/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
+	$agent_regx = '/(up.browser|up.link|mmp|symbian|smartphone|midp|wap|phone|iphone|ipad|ipod|android|xoom)/i';
+	if (preg_match($agent_regx, strtolower(filter_input(INPUT_SERVER, 'HTTP_USER_AGENT')))) {
 		return TRUE;
 	}
 	$mobile_agents = array(
@@ -146,7 +150,7 @@ function is_mobile_request() {
 		'tosh', 'tsm-', 'upg1', 'upsi', 'vk-v', 'voda', 'wap-', 'wapa', 'wapi', 'wapp',
 		'wapr', 'webc', 'winw', 'winw', 'xda', 'xda-'
 	);
-	if (in_array(strtolower(substr($_SERVER['HTTP_USER_AGENT'], 0, 4)), $mobile_agents)) {
+	if (in_array(strtolower(substr(filter_input(INPUT_SERVER, 'HTTP_USER_AGENT'), 0, 4)), $mobile_agents)) {
 		return TRUE;
 	}
 	return FALSE;
@@ -160,13 +164,39 @@ function is_mobile_request() {
  * @return boolean 
  */
 function mk_dir($dir, $mode = 0777) {
-	if (is_dir($dir) || @mkdir($dir, $mode)) {
-		return TRUE;
+	if (strcasecmp(PHP_OS, 'WINNT')) {
+		mkdir($dir, $mode, TRUE);
+		return $dir;
+	}
+	if (is_dir($dir) || _mkdir($dir, $mode)) {
+		return $dir;
 	}
 	if (!mk_dir(dirname($dir), $mode)) {
 		return FALSE;
 	}
-	return @mkdir($dir, $mode);
+	return _mkdir($dir, $mode);
+}
+
+/**
+ * 兼容 linux 创建文件
+ * 
+ * @param string $dir 
+ * @param int $mode 权限
+ * @return string 
+ */
+function _mkdir($dir, $mode = 0777) {
+	if (!is_dir($dir)) {
+		$oldumask = umask(0);
+		$mkres = @mkdir($dir, $mode);
+		if ($mkres) {
+			chmod($dir, $mode);  // 提升权限
+			umask($oldumask);
+		}else{
+			umask($oldumask);
+			return FALSE;
+		}
+	}
+	return $dir;
 }
 
 /**
@@ -213,17 +243,6 @@ function xor_decrypt($string, $key = '') {
 }
 
 /**
- * 系统非常规 MD5加密方法
- * 
- * @param  string $str 要加密的字符串
- * @param string $key 加密密钥
- * @return string 
- */
-function md5_password($str, $key = 'mzPHP') {
-	return '' == $str ? '' : md5(sha1($str) . md5($str) . $key);
-}
-
-/**
  * 获取客户端 IP
  * 
  * @return string
@@ -245,16 +264,32 @@ function get_ip() {
 }
 
 /**
+ * ajax 返回
+ * 
+ * @param string $data 返回的数据
+ * @return void 
+ */
+function ajax_echo($data) {
+	if (!headers_sent()) {
+		header('Content-Type:text/html;charset=utf-8');
+		header('Cache-Control: no-cache, must-revalidate');
+		header('Pragma: no-cache');
+		header('Expires: 0');
+	}
+	exit($data);
+}
+
+/**
  * 重定向
  * 
- * @param string $url 
- * @param string $msg
- * @param int $time 
+ * @param string $url 跳转URL
+ * @param string $msg  跳转信息
+ * @param int $time  跳转四件
  * @return void
  */
 function jumps($url, $msg = '', $time = 0) {
 	$url = str_replace(array("\n", "\r"), '', $url);
-	$url = empty($url) ? u('index/index') : $url;
+	$url = empty($url) ? SITE_URL : $url;
 	if (empty($msg)) {
 		$msg = "系统将在{$time}秒之后自动跳转到{$url}！";
 	}
@@ -277,77 +312,26 @@ function jumps($url, $msg = '', $time = 0) {
 }
 
 /**
- * 是否 GET 提交
+ * 活动验证
  * 
- * @return boolean - true 是
+ * @param boolean $condition 条件
+ * @param string $func 满足条件后动作
+ * @param array|string $param 参数
+ * @param string $else_func 不满足条件后动作
+ * @param array|string $else_param 参数
+ * @return mixed
  */
-function is_get(){
-	return (filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'GET') ? TRUE : FALSE;
-}
-
-/**
- * 是否 POST 提交
- * 
- * @return boolean - true 是
- */
-function is_post(){
-	return (filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'POST') ? TRUE : FALSE;
-}
-
-/**
- * 生成 URL关键字
- * 
- * @param string $url 
- * @return array | false
- */
-function generate_url_key($url) {
-	if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
-		return FALSE;  // 非 URL
+function opt_active($condition, $func, $param = array(), $else_func = null, $else_param = array()) {
+	if ($condition) {
+		// 如果是函数,则调用, 如果是语言结果则使用eval
+		if (empty($func)) {
+			return TRUE;
+		}
+		is_callable($func) ? call_user_func($func, $param) : eval("$func ('$param');");
+	} else {
+		if (empty($else_func)) {
+			return FALSE;
+		}
+		is_callable($else_func) ? call_user_func($else_func, $else_param) : eval("$else_func ('$else_param');");
 	}
-	$matchs = array();
-	$host = parse_url($url, PHP_URL_HOST);
-	$uri_arr = explode('.', $host);
-	$uri_count = count($uri_arr);
-	$tld = 'org|com|net|gov|edu|info|biz|name|mobi|mil|pro|travel|museum|int|aero|post|rec|asia|arts|firm|info|nom|rec|store|web';  // 顶级域名
-	preg_match('/(' . $tld . ')\.+/i', $host, $matchs);
-	if (empty($matchs)) {
-		$url_key = $uri_arr[$uri_count - 3] . '.' . $uri_arr[$uri_count - 2] . '.' . $uri_arr[$uri_count - 1];
-	}else{
-		$url_key = $uri_arr[$uri_count - 4] . '.' . $uri_arr[$uri_count - 3] . '.' . $uri_arr[$uri_count - 2] . '.' . $uri_arr[$uri_count - 1];
-	}
-	return str_replace('www.', '', $url_key);
-}
-
-/**
- * 生成随机 字符串
- * 
- * @param int $len 字符串长度
- * @param int $type = 1 字符类型 0 纯数字 1 纯字母 2 数字字母混合
- * @return string 
- */
-function rand_string($len = 6, $type = 1) {
-	$len = abs(intval($len));
-	if ($len < 1) {
-		return '';
-	}
-	switch (intval($type)) {
-		case 0:
-			$key = '8901267345';
-			break;
-		case 1:
-			$key = 'UvVwdDeEfFgGhHiIjJkKlWxXyYzZaAbBcPqQrRsStTuCLmMnNoOp';
-			break;
-		case 2:
-			$key = '78eEfFgGhH90aAbBcCd12sStTuUvqQrR7654VwWxXyYzZ0983nNoOpP3456DiIjJkKlLmM21';
-			break;
-		default:
-			$key = 'hHifFgGUvVwStTyYzulLmMnNoOpPIjJkKdDeEqQrRsaAbBcCWxXZ';
-			break;
-	}
-	$max = intval(strlen($key)) - 1;
-	$str = '';
-	for ($i = 0; $i < $len; $i++) {
-		$str .= $key{mt_rand(0, $max)};
-	}
-	return $str;
 }

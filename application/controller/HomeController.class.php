@@ -7,7 +7,7 @@ defined('INI') or die('--HomeCtrl--');
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 Beta
+ * @version 1.0 RC1
  */
 class HomeController extends CoreController {
 	/**

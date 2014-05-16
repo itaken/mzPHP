@@ -7,7 +7,7 @@ defined('INI') or die('--TestModel--');
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-26
- * @version 1.0 Beta
+ * @version 1.0 RC1
  */
 class TestModel extends CoreModel {
 
@@ -81,15 +81,17 @@ class TestModel extends CoreModel {
 
 	/**
 	 * 测试
+	 * 
+	 * @return array
 	 */
 	public function sidebar() {
 		$bar = array();
 		for ($i = 0; $i < 2; $i ++) {
 			$side = array();
 			for ($j = 0; $j < 3; $j++) {
-				$side[] = 'side ' . $i . '-' . $j;
+				$side[] = '子目录 ' . $i . '-' . $j;
 			}
-			$bar[] = $side;
+			$bar['侧边栏-'.$i] = $side;
 		}
 		return $bar;
 	}

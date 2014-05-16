@@ -44,6 +44,9 @@ body {
 	background: #EE9E27; 
 	/*background: #FFCC00;*/ 
 }
+.image img{ 
+	max-width: 90px;
+}
 .box > .icon > .image > i {
 	font-size: 36px !important; 
 	color: #fff !important; 

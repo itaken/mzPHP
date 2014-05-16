@@ -7,7 +7,7 @@ defined('INI') or die('--CoreModel--');
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-22
- * @version 1.0 Beta
+ * @version 1.0 RC1
  */
 class CoreModel {
 
@@ -45,10 +45,13 @@ class CoreModel {
 		// 组装 数据表
 		$true_tbl = $this->_sTrueTbl;  // 定义 真实表名
 		if (empty($true_tbl)) {
-			$mod = get_class($this); // 子类名称
-			$match = array();
-			preg_match_all('/[A-Z]{1}[a-z0-9]+/', str_replace('Model', '', $mod), $match);
-			$tbl_name = c('TBL_PREFIX') . strtolower(implode('_', $match[0])) . c('TBL_SUFFIX');  // 表名
+//			$mod = get_class($this); // 子类名称
+//			$match = array();
+//			preg_match_all('/[A-Z]{1}[a-z0-9]+/', str_replace('Model', '', $mod), $match);
+//			$tbl_name = c('TBL_PREFIX') . strtolower(implode('_', $match[0])) . c('TBL_SUFFIX');  // 表名
+			
+			$mod = trim(preg_replace('/([A-Z]{1})/','_$1',get_class($this)),'_'); // 子类名称
+			$tbl_name = c('TBL_PREFIX') . str_replace('_model', '', strtolower($mod)) . c('TBL_SUFFIX');   // 表名
 		} else {
 			$tbl_name = $true_tbl;
 		}
