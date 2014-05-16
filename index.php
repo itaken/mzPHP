@@ -9,13 +9,13 @@
  */
 !version_compare(PHP_VERSION, '5.3.0', '<') or die('ERROR: mzPHP require PHP > 5.3 !');
 
-error_reporting(E_ALL);  // 显示所有错误信息
-//error_reporting(E_ERROR | E_WARNING);  // 显示所有错误信息
+//error_reporting(E_ALL);  // 显示所有错误信息
+error_reporting(E_ERROR | E_WARNING);  // 显示所有错误信息
 
 /**
  * 系统调试设置 ( 项目正式部署后请设置为 false )
  */
-define('APP_DEBUG', TRUE);
+define('APP_DEBUG', FALSE);
 
 /**
  * 是否开启路由模式  - TRUE 开启
