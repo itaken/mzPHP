@@ -1,4 +1,4 @@
-mzPHP 简介
+mzPHP 1.0 RC1 简介
 ============
 >More ZZZ, Let's PHP!!
 * * *
