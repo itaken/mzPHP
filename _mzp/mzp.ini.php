@@ -55,13 +55,6 @@ file_exists($ufunc) && include_once($ufunc);
 define('SROOT', mk_dir(MROOT . 'data/cache') . DS);
 
 /**
- * 对用户输入进行处理
- */
-isset($_GET) && stop_attack($_GET, $getfilter);
-isset($_POST) && stop_attack($_POST, $postfilter);
-isset($_COOKIE) && stop_attack($_COOKIE, $cookiefilter);
-
-/**
  * 注册类
  */
 if (!defined('MZP_AUTOLOAD')) {
