@@ -5,7 +5,7 @@
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-5-14
- * @version 1.0 RC1
+ * @version 1.0 RC2
  */
 defined('INI') or die('--PFunc--');
 

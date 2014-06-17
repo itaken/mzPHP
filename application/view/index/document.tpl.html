@@ -1,3 +1,291 @@
 <div class="container">
-	TODO write content
+	<h2>方法说明</h2>
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>类型</th>
+				<th>方法名</th>
+				<th>描述</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="active">
+				<td rowspan="10">core</td>
+				<td>c($str)</td>
+				<td>获取 配置内容 </td>
+			</tr>
+			<tr>
+				<td>g($name)</td>
+				<td>获取 gloab 变量</td>
+			</tr>
+			<tr>
+				<td>u($path = null, $param = array())</td>
+				<td>生成 URL </td>
+			</tr>
+			<tr>
+				<td>assign()</td>
+				<td>数据分发 ( 不定参数 )</td>
+			</tr>
+			<tr>
+				<td>render()</td>
+				<td>模板输出</td>
+			</tr>
+			<tr>
+				<td>HTTPCache($contents)</td>
+				<td>推送缓存内容</td>
+			</tr>
+			<tr>
+				<td>info_page($info, $title = '', $meta_title = '')</td>
+				<td>信息页</td>
+			</tr>
+			<tr>
+				<td>json_return($data, $info = '', $status = '')</td>
+				<td> json 返回</td>
+			</tr>
+			<tr>
+				<td>SFile($name, $data = '', $expire = null)</td>
+				<td> 文件缓存</td>
+			</tr>
+			<tr>
+				<td>Mlib($libname)</td>
+				<td>载入库</td>
+			</tr>
+			<tr class="active">
+				<td rowspan="6">*private</td>
+				<td>__mzp_autoload($class)</td>
+				<td>类自动加载</td>
+			</tr>
+			<tr>
+				<td>__refle($controller, $action, $param)</td>
+				<td>通过反射 匹配参数</td>
+			</tr>
+			<tr>
+				<td>__mzp_run()</td>
+				<td>解析 URL</td>
+			</tr>
+			<tr>
+				<td>__tarce()</td>
+				<td>回溯 解析</td>
+			</tr>
+			<tr>
+				<td>__args_handle($args, $data = array())</td>
+				<td>方法参数 数据整合</td>
+			</tr>
+			<tr>
+				<td>__render_handle($args)</td>
+				<td>渲染前 处理</td>
+			</tr>
+			<tr class="active">
+				<td rowspan="17">addons</td>
+				<td>stop_attack($value, $filt_req)</td>
+				<td>输入过滤</td>
+			</tr>
+			<tr>
+				<td>get_time()</td>
+				<td>获取精确时间</td>
+			</tr>
+			<tr>
+				<td>is_debug()</td>
+				<td>是否 DEBUG</td>
+			</tr>
+			<tr>
+				<td>is_cache()</td>
+				<td>是否 缓存</td>
+			</tr>
+			<tr>
+				<td>is_get()</td>
+				<td>是否 GET 提交</td>
+			</tr>
+			<tr>
+				<td>is_post()</td>
+				<td>是否 POST 提交</td>
+			</tr>
+			<tr>
+				<td>is_ajax()</td>
+				<td>是否 ajax 请求</td>
+			</tr>
+			<tr>
+				<td>apache_request_headers()</td>
+				<td>获取全部 HTTP 请求头信息</td>
+			</tr>
+			<tr>
+				<td>is_mobile()</td>
+				<td>判断是否 手机请求</td>
+			</tr>
+			<tr>
+				<td>mk_dir($dir, $mode = 0777)</td>
+				<td>循环创建目录</td>
+			</tr>
+			<tr>
+				<td>_mkdir($dir, $mode = 0777)</td>
+				<td>兼容 linux 创建文件</td>
+			</tr>
+			<tr>
+				<td>xor_encrypt($string, $key = '')</td>
+				<td>系统加密方法</td>
+			</tr>
+			<tr>
+				<td>xor_decrypt($string, $key = '')</td>
+				<td>系统解密方法</td>
+			</tr>
+			<tr>
+				<td>get_ip()</td>
+				<td>获取客户端 IP</td>
+			</tr>
+			<tr>
+				<td>ajax_echo($data)</td>
+				<td>ajax 返回</td>
+			</tr>
+			<tr>
+				<td>jumps($url, $msg = '', $time = 0)</td>
+				<td>重定向</td>
+			</tr>
+			<tr>
+				<td>opt_active()</td>
+				<td>动态验证</td>
+			</tr>
+			<tr class="active">
+				<td rowspan="4">user</td>
+				<td>img($name, $dir = NULL)</td>
+				<td>获取 图片</td>
+			</tr>
+			<tr>
+				<td>tpl($path, $data = FALSE, $return = FALSE)</td>
+				<td>引入 模板文件</td>
+			</tr>
+			<tr>
+				<td>stc($file, $dir = 'css')</td>
+				<td>获取static内容</td>
+			</tr>
+			<tr>
+				<td>encrypt_md5($str, $key = 'mzPHP:)')</td>
+				<td>系统非常规MD5加密方法</td>
+			</tr>
+		</tbody>
+	</table>
+	<h2>数据库操作</h2>
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>方法名</th>
+				<th>描述</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>1</td>
+				<td>select_tbl($tbl_name, $db_name = null)</td>
+				<td>选择 数据表</td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td>table($name)</td>
+				<td>更换表名</td>
+			</tr>
+			<tr>
+				<td>3</td>
+				<td>data($array)</td>
+				<td>插入的数据</td>
+			</tr>
+			<tr>
+				<td>4</td>
+				<td>insert($data = array())</td>
+				<td>插入一条数据</td>
+			</tr>
+			<tr>
+				<td>5</td>
+				<td>insertAll($data = array())</td>
+				<td>插入一组数据</td>
+			</tr>
+			<tr>
+				<td>6</td>
+				<td>where($where)</td>
+				<td>查询 条件</td>
+			</tr>
+			<tr>
+				<td>7</td>
+				<td>update($data, $where = null)</td>
+				<td>更新数据</td>
+			</tr>
+			<tr>
+				<td>8</td>
+				<td>delect($where = null)</td>
+				<td>删除操作</td>
+			</tr>
+			<tr>
+				<td>9</td>
+				<td>increase($field, $step = 1)</td>
+				<td>字段 增值</td>
+			</tr>
+			<tr>
+				<td>10</td>
+				<td>decrease($field, $step = 1)</td>
+				<td>字段 减值</td>
+			</tr>
+			<tr>
+				<td>11</td>
+				<td>field($field)</td>
+				<td>查询的字段</td>
+			</tr>
+			<tr>
+				<td>12</td>
+				<td>order($order)</td>
+				<td>排序 条件</td>
+			</tr>
+			<tr>
+				<td>13</td>
+				<td>find($where = null, $field = null, $order = null)</td>
+				<td>获取单个元素</td>
+			</tr>
+			<tr>
+				<td>14</td>
+				<td>limit($limit)</td>
+				<td>限制条件</td>
+			</tr>
+			<tr>
+				<td>15</td>
+				<td>select()</td>
+				<td>获取 多个结果集</td>
+			</tr>
+			<tr>
+				<td>16</td>
+				<td>count($where = null)</td>
+				<td>计算 查询结果</td>
+			</tr>
+			<tr>
+				<td>17</td>
+				<td>join()</td>
+				<td>表 关联 ( 默认左关联 )</td>
+			</tr>
+			<tr>
+				<td>18</td>
+				<td>union()</td>
+				<td>并联 操作</td>
+			</tr>
+			<tr>
+				<td>19</td>
+				<td>query($sql)</td>
+				<td>SQL 查询</td>
+			</tr>
+			<tr>
+				<td>20</td>
+				<td>_errmsg()</td>
+				<td>获取 最后一条错误</td>
+			</tr>
+			<tr>
+				<td>21</td>
+				<td>* _as()</td>
+				<td>表别名</td>
+			</tr>
+			<tr>
+				<td>22</td>
+				<td>* _sql()</td>
+				<td>获取 最后一条SQL语句</td>
+			</tr>
+			<tr>
+				<td colspan="3">注释: "*" 表示MySQL所特有!</td>
+			</tr>
+		</tbody>
+	</table>
 </div>

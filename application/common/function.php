@@ -77,6 +77,6 @@ function stc($file, $dir = 'css') {
  * @param string $key 加密密钥
  * @return string 
  */
-function psw_md5($str, $key = 'mzPHP:)') {
+function encrypt_md5($str, $key = 'mzPHP:)') {
 	return '' == $str ? '' : md5(sha1($str) . md5($str) . $key);
 }

@@ -5,7 +5,7 @@
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-23
- * @version 1.0 RC1
+ * @version 1.0 RC2
  */
 defined('INI') or die('--AFunc--');
 
@@ -313,7 +313,7 @@ function jumps($url, $msg = '', $time = 0) {
 }
 
 /**
- * 活动验证
+ * 动态验证
  * 
  * @param boolean $condition 条件
  * @param string $func 满足条件后动作

@@ -5,7 +5,7 @@
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 RC1
+ * @version 1.0 RC2
  */
 defined('INI') or die('--CFunc--');
 include('private.function.php');   // 引入一些私有方法

@@ -7,7 +7,7 @@ defined('INI') or die('--CoreModel--');
  * 
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-22
- * @version 1.0 RC1
+ * @version 1.0 RC2
  */
 class CoreModel {
 
