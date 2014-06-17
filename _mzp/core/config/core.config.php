@@ -22,10 +22,14 @@ return array(
 	'TPL_FILE_PATH' => AROOT . 'view/', // 模板文件存放路径 ( 不建议修改 )
 	'TPL_FILE_DEPR' => '/', // TPL文件分隔符 ( /:目录 )
 	'TPL_FILE_SUFFIX' => '.tpl.html', // TPL模板后缀 
-	// 安全设定
+	// 缓存设定
+	'CACHE_ENABLED' => FALSE,  // 是否缓存
 	'CACHE_EXPIRE' => 60, // 缓存有效期 ( 单位: 分钟 )
 	// 其他设定
 	'STATIC_FILE_PATH' => MROOT . 'data/static/', // 静态文件路径
+	'STRIP_INDEX_TAG' => FALSE,  // 去除 URL 中 index.php
 	'PATH_RENDER_CUSTOM' => array('public/info'), // 路径例外,该路径没有模板文件,使用自定义模板渲染
 	'EXTENSION_LOAD' => array('db'),  // 默认加载的扩展
+	'LIB_CLASS_PREFIX' => 'M_',   // 类库 类前缀
+	'SLINK_URL_SUFFIX' => '.html',   // URL 后缀
 );

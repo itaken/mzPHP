@@ -9,8 +9,11 @@
  */
 !version_compare(PHP_VERSION, '5.3.0', '<') or die('ERROR: mzPHP require PHP > 5.3 !');
 
-//error_reporting(E_ALL);  // 显示所有错误信息
-error_reporting(E_ERROR | E_WARNING);  // 显示所有错误信息
+/**
+ * 显示 错误信息 级别
+ */
+error_reporting(E_ALL); 
+//error_reporting(E_ERROR | E_WARNING);
 
 /**
  * 系统调试设置 ( 项目正式部署后请设置为 false )
@@ -25,7 +28,7 @@ define('OPEN_SLINK', TRUE);
 /**
  * 定义项目常量
  */
-define('MROOT', str_replace('\\', '/', dirname(__FILE__)) . '/'); // 路径
+define('MROOT', str_replace('\\', '/', dirname(__FILE__)) . '/'); // 框架路径
 define('SITE_URL', 'http://' . filter_input(INPUT_SERVER, 'HTTP_HOST') . '/');  // 网址
 define('APATH', './application');  // 应用路径
 

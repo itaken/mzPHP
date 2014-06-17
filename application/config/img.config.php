@@ -12,7 +12,7 @@ defined('INI') or die('--ImgConf--');
 return array(
 	/* 图片操作 */
 	'IMAGE_HANDLING' => array(
-		'path' => MROOT . 'static/imgs/', // 图片路径
+		'path' => MROOT . 'data/static/imgs/', // 图片路径
 		'name' => '', // 图片名称
 		'nameFunc' => 'uniqid_string', // 图片命名方法
 		'maxSize' => 0, // 最大尺寸
@@ -22,7 +22,7 @@ return array(
 	),
 	/* 图片缩略图 */
 	'IMAGE_THUMB' => array(
-		'path' => MROOT . 'static/imgs/thumb/', // 缩略图保存位置
+		'path' => MROOT . 'data/static/imgs/thumb/', // 缩略图保存位置
 		'maxWidth' => 600, // 最大长度
 		'maxHeight' => 400, // 最大高度
 		'openFixed' => TRUE, // 开启固定大小
@@ -38,12 +38,12 @@ return array(
 	),
 	/* 图片水印 */
 	'IMAGE_MARK' => array(
-		'file' => MROOT . 'static/imgs/public/watermark.png', // 水印图片位置
+		'file' => MROOT . 'data/static/imgs/public/watermark.png', // 水印图片位置
 		'textMark' => TRUE, // 是否 添加 文字水印
 		'textConf' => array(
 			'text' => '爱我中国', // 文字文本
 			'color' => 'blue', // 字体颜色
-			'font' => MROOT . 'static/fonts/fontello.ttf', // 字体 ( 必须,非中文 )
+			'font' => MROOT . 'data/static/fonts/fontello.ttf', // 字体 ( 必须,非中文 )
 			'size' => 20, // 字体大小 ( 单位 点 )
 			'angle' => 0, // 文字角度 
 			'direction' => 'MB', // 文本位置  LT左上 MT中上 RT右上 MC居中 LB左下 MB中下 RB右下

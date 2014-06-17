@@ -6,7 +6,6 @@
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-21
  * @version 1.0 RC1
- * @todo 开启php.ini文件中的short_open_tag设置,设定为On
  */
 defined('MROOT') or die('--ERROR: NO MROOT');
 
@@ -19,6 +18,11 @@ define('INI', TRUE);
  * 开启 SESSION
  */
 isset($_SESSION) || session_start();
+
+/**
+ * 开启 短标签
+ */
+ini_set('short_open_tag', TRUE);
 
 /**
  * @var string 定义分割符号
@@ -53,6 +57,13 @@ file_exists($ufunc) && include_once($ufunc);
  * @var string 缓存文件夹
  */
 define('SROOT', mk_dir(MROOT . 'data/cache') . DS);
+
+/**
+ * 对用户输入进行处理
+ */
+isset($_GET) && stop_attack($_GET, $getfilter);
+isset($_POST) && stop_attack($_POST, $postfilter);
+isset($_COOKIE) && stop_attack($_COOKIE, $cookiefilter);
 
 /**
  * 注册类

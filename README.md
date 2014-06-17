@@ -96,6 +96,7 @@ $rs = $this->_as('t1')->join(array('test2 as `t2` ON t1.id = t2.id',))->where('t
 >## 魔术方法 (自定义魔术方法)
   为了方便调用,在核心库中自定义了一些魔术方法。用户也可以_自定义魔术方法_。
 
+最常用的是 c，g，u 三个魔术方法。
 
 >## Bootstrap框架
   mzPHP采用前端框架BootStrap，[前往详情介绍](http://www.bootcss.com/)。

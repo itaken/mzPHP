@@ -164,17 +164,20 @@ function is_mobile() {
  * @return boolean 
  */
 function mk_dir($dir, $mode = 0777) {
-	if (strcasecmp(PHP_OS, 'WINNT')) {
+	if (!is_dir($dir) && strcasecmp(PHP_OS, 'WINNT') != FALSE) {
 		mkdir($dir, $mode, TRUE);
 		return $dir;
 	}
-	if (is_dir($dir) || _mkdir($dir, $mode)) {
+	$dir = _mkdir($dir, $mode);
+	if (is_dir($dir)) {
 		return $dir;
 	}
 	if (!mk_dir(dirname($dir), $mode)) {
-		return FALSE;
+		// 循环创建 目录 失败
+		$msg = 'ERROR: Directory ' . ( APP_DEBUG ? '"' . $dir . '"' : '' ) . ' creation failed!';
+		exit($msg);
 	}
-	return _mkdir($dir, $mode);
+	return $dir;
 }
 
 /**
@@ -185,17 +188,15 @@ function mk_dir($dir, $mode = 0777) {
  * @return string 
  */
 function _mkdir($dir, $mode = 0777) {
-	if (!is_dir($dir)) {
-		$oldumask = umask(0);
-		$mkres = @mkdir($dir, $mode);
-		if ($mkres) {
-			chmod($dir, $mode);  // 提升权限
-			umask($oldumask);
-		}else{
-			umask($oldumask);
-			return FALSE;
-		}
+	if(is_writable($dir)){
+		return $dir;
 	}
+	$mask = umask(0);
+	if(!is_dir($dir)){
+		@mkdir($dir, $mode);
+	}
+	chmod($dir, $mode);
+	umask($mask);
 	return $dir;
 }
 

@@ -8,7 +8,7 @@
  * @version 1.0 RC1
  */
 defined('INI') or die('--CFunc--');
-include('private.function.php');
+include('private.function.php');   // 引入一些私有方法
 
 /**
  * 获取 配置内容  
@@ -45,7 +45,8 @@ function g($name) {
 /**
  * 生成 URL 
  * @example u('index/index') -生成指向 index 控制器 index 操作的链接
-
+ *    ( 支持的自定义模板连接符号: "/"、":"、"|"、"." 四种 )
+ * 
  * @param string $path url路径
  * @param array $param url参数
  * @return string 
@@ -78,7 +79,8 @@ function u($path = null, $param = array()) {
 			$param_str .= '/' . $key . '/' . urlencode($value);
 		}
 	}
-	return SITE_URL . $controller . '/' . $action . $param_str . '.html';
+	$index = c('STRIP_INDEX_TAG') ? '' :  'index.php/' ;  // 是否 去除 index.php
+	return SITE_URL. $index . $controller . '/' . $action . $param_str . c('SLINK_URL_SUFFIX');
 }
 
 /**
@@ -220,7 +222,7 @@ function json_return($data, $info = '', $status = '') {
  */
 function SFile($name, $data = '', $expire = null) {
 	$cache_file = SROOT . md5($name . OPEN_SLINK) . '.cache';
-	if (!is_cache() || APP_DEBUG) {  // 不缓存
+	if (!is_cache() || APP_DEBUG || !is_writable(SROOT) || !c('CACHE_ENABLED')) {  // 不缓存
 		if (file_exists($cache_file)) {
 			unlink($cache_file);
 		}

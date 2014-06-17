@@ -1,13 +1,22 @@
 <?php
 
 /**
- * 数据库操作方法库
+ * 获取数据库配置
  * 
- * @author regel chen<regelhh@gmail.com>
- * @since 2014-3-22
- * @version 1.0 RC1
+ * @param string $name 配置项名称
+ * @return mixed 值
  */
-defined('INI') or die('--MysqliFunc--');
+function DBConfig($name = null) {
+	$db_config = $GLOBALS['db']['config'];
+	if (empty($db_config)) {
+		$config = include(DB_CLS_ROOT . 'db.config.inc');
+		$GLOBALS['db']['config'] = $config;
+	}
+	if(is_null($name)){
+		return $db_config;
+	}
+	return isset($db_config[$name]) ? $db_config[$name] : null;
+}
 
 /**
  * 数据库连接
@@ -17,34 +26,36 @@ defined('INI') or die('--MysqliFunc--');
  * @param string $user
  * @param string $password
  * @param string $db_name
+ * @param string $chart 编码格式
  * @return resource
  */
-function db($host = null, $port = null, $user = null, $password = null, $db_name = null) {
+function db($host = null, $port = null, $user = null, $password = null, $db_name = null, $chart = null) {
 	// 数据库配置
-	$host = empty($host) ? c('DB_HOST') : $host;
-	$port = empty($port) ? c('DB_PORT') : $port;
-	$user = empty($user) ? c('DB_USER') : $user;
-	$password = empty($password) ? c('DB_PSW') : $password;
-	$db_name = empty($db_name) ? c('DB_NAME') : $db_name;
+	$host = empty($host) ? DBConfig('DB_HOST') : $host;
+	$port = empty($port) ? DBConfig('DB_PORT') : intval($port);
+	$user = empty($user) ? DBConfig('DB_USER') : $user;
+	$password = is_null($password) ? DBConfig('DB_PSW') : $password;
+	$db_name = empty($db_name) ? DBConfig('DB_NAME') : $db_name;
 	(empty($host) || empty($port) || empty($user)) && die('--ERROR: DB config error!');
 	$db_key = 'mysqli-' . md5($host . '-' . $port . '-' . $user . '-' . $password . '-' . $db_name);
-	$GLOBALS['db']['key'] = $db_key;  // 存储数据库KEY
+	$GLOBALS['db']['key'] = $db_key;
 	if (isset($GLOBALS[$db_key])) {
-		$mysqli = $GLOBALS[$db_key];
-		if ($mysqli->ping()) {  // 判断 连接 是否 alive
+		$mysql = $GLOBALS[$db_key];
+		if (mysql_ping($mysql)) {  // 判断 连接 是否 alive
 //			echo '---alive---';
-			return $mysqli;
+			return $mysql;
 		}
 	}
-	$mysqli = @new mysqli($host, $user, $password, $db_name, intval($port)); // 初始化 mysqli
-	if ($mysqli->connect_errno) {
-		$msg = APP_DEBUG ? ' < ' . $mysqli->connect_error . ' >' : '';
+	$mysql = mysql_connect($host . ':' . $port, $user, $password, TRUE); // 初始化 mysqli
+	if (mysql_errno($mysql)) {
+		$msg = APP_DEBUG ? ' < ' . mysql_error($mysql) . ' >' : '';
 		exit('--ERROR: Connect failed!' . $msg);
 	}
-	$mysqli->set_charset(c('CHART_SET'));  // 设置编码格式
-//	$mysqli->select_db($db_name);  // 选择数据库
-	$GLOBALS[$db_key] = $mysqli;
-	return $mysqli;
+	mysql_select_db($db_name, $mysql);
+	$chart = empty($chart) ? DBConfig('CHART_SET') : $chart;  // 编码格式
+	mysql_query('SET NAMES "' . $chart . '"', $mysql); // 设置编码格式
+	$GLOBALS[$db_key] = $mysql;
+	return $mysql;
 }
 
 /**
@@ -57,10 +68,10 @@ function db($host = null, $port = null, $user = null, $password = null, $db_name
 function run_sql($sql, $db = NULL) {
 	$db = is_null($db) ? db() : $db;
 	$GLOBALS['db']['last_sql'] = $sql;
-	$result = $db->query($sql);
-	if ($db->errno) {
+	$result = mysql_query($sql, $db);
+	if (mysql_errno($db)) {
 		// 发生错误, 记录错误信息
-		$GLOBALS['db']['last_error'] = $db->error;
+		$GLOBALS['db']['last_error'] = mysql_error($db);
 		return FALSE;
 	}
 	return $result;
@@ -79,8 +90,8 @@ function get_line($sql, $db = NULL) {
 	if (empty($result)) {
 		return array();
 	}
-	$row = $result->fetch_assoc();
-	$result->free();  // 释放资源
+	$row = mysql_fetch_assoc($result);
+	mysql_free_result($result);  // 释放资源
 	return $row;
 }
 
@@ -98,10 +109,10 @@ function get_data($sql, $db = NULL) {
 	if (empty($result)) {
 		return $data;
 	}
-	while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+	while ($row = mysql_fetch_array($result, MYSQLI_ASSOC)) {
 		$data[] = $row;
 	}
-	$result->free();  // 释放资源
+	mysql_free_result($result);  // 释放资源
 	return $data;
 }
 
@@ -112,7 +123,7 @@ function get_data($sql, $db = NULL) {
  * @return int 
  */
 function insert_id($db) {
-	return $db->insert_id;
+	return mysql_insert_id($db);
 }
 
 /**
@@ -122,7 +133,7 @@ function insert_id($db) {
  * @return int 
  */
 function affected_rows($db) {
-	return $db->affected_rows;
+	return mysql_affected_rows($db);
 }
 
 /**
@@ -132,8 +143,9 @@ function affected_rows($db) {
  * @return void
  */
 function close_db($db = NULL) {
-	$db = is_null($db) ? db() : $db;
-	$db->close();
+	if (is_callable($db)) {
+		mysql_close($db);
+	}
 	$db_key = $GLOBALS['db']['key'];
 	unset($GLOBALS[$db_key]);
 	unset($GLOBALS['db']);
@@ -148,27 +160,6 @@ function close_db($db = NULL) {
  */
 function escape_string($str, $db = NULL) {
 	$db = is_null($db) ? db() : $db;
-	return $db->escape_string($str);
+	return mysql_real_escape_string($str, $db);
 //	return mysqli_real_escape_string($db, $str);
-}
-
-/**
- * 条件字符串 过滤
- * 
- * @param string $where_str 
- * @return string 
- */
-function where_filter($where_str) {
-	if (empty($where_str)) {
-		return FALSE;
-	}
-	// 语句防注入
-	if (preg_match('/[\'|"]\s*;\s*[\'|"]?\s*(update|insert|delete|drop|select)/i', $where_str)) {
-		return FALSE;
-	}
-	// 1=1 / 1=2 防注入
-	if (preg_match('/(1\s*=\s*1)|(1\s*=\s*2)|(\d\s*=\s*\d)/', $where_str)) {
-		return FALSE;
-	}
-	return $where_str;
 }

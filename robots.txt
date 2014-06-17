@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /_mzp/
+Disallow: /data/
+Disallow: /application/common/
+Disallow: /application/config/

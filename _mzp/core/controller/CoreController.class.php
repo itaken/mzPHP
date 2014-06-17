@@ -42,7 +42,7 @@ class CoreController {
 		ob_implicit_flush(FALSE);
 		include($error_file);
 		$tpl_contents = ob_get_clean();  // 获取并清空缓存
-		$reg = "'<style[^>]*>(.*?)</style>'isU";
+		$reg = '"<style[^>]*>(.*?)</style>"isU';
 		$match = array();
 		preg_match_all($reg, $tpl_contents, $match, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);  // 匹配
 		foreach ($match as $value) {
