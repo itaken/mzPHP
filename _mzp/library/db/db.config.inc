@@ -7,18 +7,6 @@
  * @since 2014-3-21
  * @version 1.0 RC2
  */
-//return array(
-//	'DB_TYPE' => 'mongo',		// 数据库类型
-//	'DB_HOST' => 'localhost',	// 数据库主机地址
-//	'DB_PORT' => 27017,		// 数据库端口号
-//	'DB_USER' => 'regel',		// 数据库用户
-//	'DB_PSW' => 'regel@123',		// 数据库密码
-//	'DB_NAME' => 'net_video_db',	// 数据库名称
-//	'CHART_SET' => 'utf8',		// 默认编码
-//	'TBL_PREFIX' => 'v_',		// 表前缀
-//	'TBL_SUFFIX' => '',		// 表后缀
-//);
-
 return array(
 	'DB_TYPE' => c('DB_TYPE'),		// 数据库类型
 	'DB_HOST' => c('DB_HOST'),		// 数据库主机地址
