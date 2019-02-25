@@ -1,0 +1,40 @@
+{
+    "name": "mzPHP",
+    "version": "1.0.0",
+    "description": "More  (～﹃～)~zzZ , Let's  PHP!",
+    "keywords": ["PHP", "Framework", "mzPHP", "itaken"],
+    "type": "Framework",
+    "authors": [
+        {
+            "name": "itaken",
+            "email": "regelhh@gmail.com",
+            "homepage": "https://github.com/itaken",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.5"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "": "_mzp"
+        },
+        "classmap": [
+            "./_mzp",
+            "application"
+        ]
+    },
+    "autoload-dev": {
+        "psr-0": {
+            "": "tests/"
+        }
+    },
+    "license": "MIT",
+    "support": {
+        "email": "regelhh@gmail.com"
+    }
+}
