@@ -2,7 +2,7 @@
 
 /**
  * 框架 统一入口
- * 
+ *
  * @author regel chen<regelhh@gmail.com>
  * @since 2014-3-21
  * @version 1.0 RC2
@@ -12,7 +12,7 @@ defined('MROOT') or die('--ERROR: NO MROOT');
 /**
  * @var boolean 定义是否已初始化
  */
-define('INI', TRUE);
+define('INI', true);
 
 /**
  * 开启 SESSION
@@ -22,7 +22,7 @@ isset($_SESSION) || session_start();
 /**
  * 开启 短标签
  */
-ini_set('short_open_tag', TRUE);
+ini_set('short_open_tag', true);
 
 /**
  * @var string 定义分割符号
@@ -33,8 +33,8 @@ ini_set('short_open_tag', TRUE);
 /**
  * @var boolean 配置是否使用默认定义
  */
-!defined('APP_DEBUG') && define('APP_DEBUG', FALSE);  // 开启调试 ( 默认:关闭 )
-!defined('OPEN_SLINK') && define('OPEN_SLINK', FALSE);  // 开启短链 ( 默认:关闭 )
+!defined('APP_DEBUG') && define('APP_DEBUG', false);  // 开启调试 ( 默认:关闭 )
+!defined('OPEN_SLINK') && define('OPEN_SLINK', false);  // 开启短链 ( 默认:关闭 )
 
 /**
  * @var string 定义文件路径
@@ -69,8 +69,8 @@ isset($_COOKIE) && stop_attack($_COOKIE, $cookiefilter);
  * 注册类
  */
 if (!defined('MZP_AUTOLOAD')) {
-	define('MZP_AUTOLOAD', 1);
-	spl_autoload_register('__mzp_autoload');
+    define('MZP_AUTOLOAD', 1);
+    spl_autoload_register('__mzp_autoload');
 }
 
 /**
