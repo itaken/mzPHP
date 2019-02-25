@@ -5,9 +5,9 @@ defined('INI') or die('--HomeCtrl--');
 /**
  * 应用 公共控制器
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 RC1
+ * @version 1.01
  */
 class HomeController extends CoreController
 {

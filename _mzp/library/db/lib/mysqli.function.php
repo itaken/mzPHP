@@ -10,7 +10,7 @@ function DBConfig($name)
 {
     $db_config = isset($GLOBALS['db']['config']) ? $GLOBALS['db']['config'] : array();
     if (empty($db_config)) {
-        $config = include(DB_CLS_ROOT . 'db.config.inc');
+        $config = include(DB_CLS_ROOT . 'db.config.php');
         $GLOBALS['db']['config'] = $config;
     }
     return isset($db_config[$name]) ? $db_config[$name] : null;
@@ -35,7 +35,7 @@ function db($host = null, $port = null, $user = null, $password = null, $db_name
     $user = empty($user) ? DBConfig('DB_USER') : $user;
     $password = is_null($password) ? DBConfig('DB_PSW') : $password;
     $db_name = empty($db_name) ? DBConfig('DB_NAME') : $db_name;
-    (empty($host) || empty($port) || empty($user)) && die('--ERROR: DB config error!');
+    (empty($host) || empty($port) || empty($user)) && die('ERROR: DB config error!');
     $db_key = 'mysqli-' . md5($host . '-' . $port . '-' . $user . '-' . $password . '-' . $db_name);
     $GLOBALS['db']['key'] = $db_key;
     if (isset($GLOBALS[$db_key])) {
@@ -48,7 +48,7 @@ function db($host = null, $port = null, $user = null, $password = null, $db_name
     $mysqli = @new mysqli($host, $user, $password, $db_name, $port); // 初始化 mysqli
     if ($mysqli->connect_errno) {
         $msg = APP_DEBUG ? ' < ' . $mysqli->connect_error . ' >' : '';
-        exit('--ERROR: Connect failed!' . $msg);
+        exit('ERROR: Connect failed!' . $msg);
     }
     $chart = empty($chart) ? DBConfig('CHART_SET') : $chart;  // 编码格式
     $mysqli->set_charset($chart);  // 设置编码格式

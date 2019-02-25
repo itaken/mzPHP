@@ -10,7 +10,7 @@ function DBConfig($name = null)
 {
     $db_config = $GLOBALS['db']['config'];
     if (empty($db_config)) {
-        $config = include(DB_CLS_ROOT . 'db.config.inc');
+        $config = include(DB_CLS_ROOT . 'db.config.php');
         $GLOBALS['db']['config'] = $config;
     }
     if (is_null($name)) {
@@ -38,20 +38,19 @@ function db($host = null, $port = null, $user = null, $password = null, $db_name
     $user = empty($user) ? DBConfig('DB_USER') : $user;
     $password = is_null($password) ? DBConfig('DB_PSW') : $password;
     $db_name = empty($db_name) ? DBConfig('DB_NAME') : $db_name;
-    (empty($host) || empty($port) || empty($user)) && die('--ERROR: DB config error!');
+    (empty($host) || empty($port) || empty($user)) && die('ERROR: DB config error!');
     $db_key = 'mysqli-' . md5($host . '-' . $port . '-' . $user . '-' . $password . '-' . $db_name);
     $GLOBALS['db']['key'] = $db_key;
     if (isset($GLOBALS[$db_key])) {
         $mysql = $GLOBALS[$db_key];
         if (mysql_ping($mysql)) {  // 判断 连接 是否 alive
-            //			echo '---alive---';
             return $mysql;
         }
     }
     $mysql = mysql_connect($host . ':' . $port, $user, $password, true); // 初始化 mysqli
     if (mysql_errno($mysql)) {
         $msg = APP_DEBUG ? ' < ' . mysql_error($mysql) . ' >' : '';
-        exit('--ERROR: Connect failed!' . $msg);
+        exit('ERROR: Connect failed!' . $msg);
     }
     mysql_select_db($db_name, $mysql);
     $chart = empty($chart) ? DBConfig('CHART_SET') : $chart;  // 编码格式

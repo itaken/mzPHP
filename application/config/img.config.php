@@ -5,9 +5,9 @@ defined('INI') or die('--ImgConf--');
 /**
  * 图片 配置
  *
- * @author regel chen <regelhh@gmail.com>
+ * @author itaken <regelhh@gmail.com>
  * @since 2013-11-16
- * @version 1.0 RC1
+ * @version 1.01
  */
 return array(
     /* 图片操作 */

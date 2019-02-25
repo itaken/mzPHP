@@ -3,9 +3,9 @@
 /**
  * 用户方法库
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-4-5
- * @version 1.0 RC1
+ * @version 1.01
  */
 defined('INI') or die('--UFunc--');
 

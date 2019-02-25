@@ -5,9 +5,9 @@ defined('INI') or die('--CoreModel--');
 /**
  * 核心 模型类
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-3-22
- * @version 1.0 RC2
+ * @version 1.0
  */
 class CoreModel
 {

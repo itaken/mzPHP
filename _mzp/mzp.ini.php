@@ -3,11 +3,11 @@
 /**
  * 框架 统一入口
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 RC2
+ * @version 1.0
  */
-defined('MROOT') or die('--ERROR: NO MROOT');
+defined('MROOT') or die('ERROR: NO MROOT');
 
 /**
  * @var boolean 定义是否已初始化
@@ -28,13 +28,13 @@ ini_set('short_open_tag', true);
  * @var string 定义分割符号
  */
 !defined('DS') && define('DS', DIRECTORY_SEPARATOR);
-!defined('APATH') && define('APATH', './');
+!defined('APATH') && define(MROOT . 'app/', DS);
 
 /**
  * @var boolean 配置是否使用默认定义
  */
 !defined('APP_DEBUG') && define('APP_DEBUG', false);  // 开启调试 ( 默认:关闭 )
-!defined('OPEN_SLINK') && define('OPEN_SLINK', false);  // 开启短链 ( 默认:关闭 )
+!defined('OPEN_SLINK') && define('OPEN_SLINK', true);  // 开启短链 ( 默认:开启 )
 
 /**
  * @var string 定义文件路径
@@ -47,9 +47,9 @@ define('AROOT', str_replace('\\', DS, realpath(MROOT . APATH)) . DS);  // 应用
  * 引入 核心方法库 / 附加方法库 以及 用户方法库
  */
 $cfunc = CROOT . 'common' . DS . 'core.function.php'; // 核心方法库
-file_exists($cfunc) ? include_once($cfunc) : die('--ERROR: Core Function File Not Found!');
+file_exists($cfunc) ? include_once($cfunc) : die('ERROR: Core Function File Not Found!');
 $afunc = CROOT . 'common' . DS . 'addons.function.php'; // 附加方法库
-file_exists($afunc) ? include_once($afunc) : die('--ERROR: Addons Function File Not Found!');
+file_exists($afunc) ? include_once($afunc) : die('ERROR: Addons Function File Not Found!');
 $ufunc = AROOT . 'common' . DS . 'function.php'; // 用戶方法库
 file_exists($ufunc) && include_once($ufunc);
 

@@ -5,7 +5,7 @@ define('DB_CLS_ROOT', str_replace('\\', '/', dirname(__FILE__)) . '/');   // 定
 /**
  * 数据库 操作类库
  *
- * @author regel chen <regelhh@gmail.com>
+ * @author itaken <regelhh@gmail.com>
  * @since 2014-5-16
  * @version 1.0 Beta
  */
@@ -22,8 +22,11 @@ class M_Db
      */
     public static function ini()
     {
-        $config = include(DB_CLS_ROOT . 'db.config.inc');  // 载入配置
+        $config = include(DB_CLS_ROOT . 'db.config.php');  // 载入配置
         $db_type = $config['DB_TYPE'];  // 数据库类型
+        if (empty($db_type)) {
+            exit("ERROR: DB type `{$db_type}` not found!");
+        }
         include(DB_CLS_ROOT . 'lib/db.interface.php');  // 载入接口文件
         $cls_file = DB_CLS_ROOT . 'lib/' . $db_type . '.class.php';
         if (file_exists($cls_file)) {
@@ -43,7 +46,6 @@ class M_Db
      */
     private function __construct()
     {
-        exit();
     }
 
     /**
@@ -51,6 +53,5 @@ class M_Db
      */
     private function __clone()
     {
-        exit();
     }
 }

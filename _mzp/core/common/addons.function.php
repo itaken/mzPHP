@@ -3,9 +3,9 @@
 /**
  * 附加方法库
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-3-23
- * @version 1.0 RC2
+ * @version 1.0
  */
 defined('INI') or die('--AFunc--');
 

@@ -5,9 +5,9 @@ defined('INI') or die('--TestModel--');
 /**
  * 测试 模型
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-3-26
- * @version 1.0 RC1
+ * @version 1.01
  */
 class TestModel extends CoreModel
 {

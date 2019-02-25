@@ -5,9 +5,8 @@ defined('INI') or die('--IndexCtrl--');
 /**
  * 应用 主入口
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 RC1
  */
 class IndexController extends HomeController
 {
@@ -17,8 +16,6 @@ class IndexController extends HomeController
      */
     public function index()
     {
-        //		var_dump($_GET['name']);
-        
         $test_mod = new TestModel();
         $bar = $test_mod->sidebar();
         assign('sidebar', $bar);

@@ -4,9 +4,9 @@ defined('INI') or die('--DbConf--');
 /**
  * 数据库配置
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 RC1
+ * @version 1.01
  */
 return array(
     'DB_TYPE' => 'mysql',		// 数据库类型

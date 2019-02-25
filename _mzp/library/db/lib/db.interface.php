@@ -3,7 +3,7 @@
 /**
  * 数据库接口
  *
- * @author regel chen <regelhh@gmail.com>
+ * @author itaken <regelhh@gmail.com>
  * @since 2014-6-4
  * @version 1.0 Beta
  */

@@ -5,9 +5,9 @@ defined('INI') or die('--CConf--');
 /**
  * 基础程序配置文件
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 RC2
+ * @version 1.0
  */
 return array(
     // 默认设定
@@ -15,7 +15,7 @@ return array(
     'DEFAULT_ACTION' => 'index', // 默认操作方法
     'DEFAULT_LAYOUT_FILE' => 'public/extend.tpl.html', // 默认布局模板
     // 默认SEO
-    'DEFAULT_META_TITLE' => 'mzPHP 1.0 RC2',
+    'DEFAULT_META_TITLE' => 'mzPHP 1.0',
     'DEFAULT_META_KEYWORDS' => 'mzPHP,PHP,轻框架,PHP轻框架',
     'DEFAULT_META_DESCRIPTION' => 'More ZZZ, Let\'s PHP!',
     // 模板文件设定

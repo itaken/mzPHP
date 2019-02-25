@@ -3,7 +3,7 @@
 /**
  * 数据库 操作类库
  *
- * @author regel chen <regelhh@gmail.com>
+ * @author itaken <regelhh@gmail.com>
  * @since 2014-5-16
  * @version 1.0 Beta
  */

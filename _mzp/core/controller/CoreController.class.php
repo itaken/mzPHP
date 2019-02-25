@@ -5,9 +5,9 @@ defined('INI') or die('--CoreCtrl--');
 /**
  * 核心控制器
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 RC2
+ * @version 1.0
  */
 class CoreController
 {
@@ -33,6 +33,14 @@ class CoreController
         $error_file = CROOT . 'view/error.tpl.html';  // 模板文件
         $layout_tpl = c('TPL_FILE_PATH') . c('DEFAULT_LAYOUT_FILE');  // 布局文件
         if (!file_exists($error_file) || !file_exists($layout_tpl)) {  // 文件不存在
+            if (APP_DEBUG) {
+                if (!file_exists($error_file)) {
+                    echo "文件 `{$error_file}` 不存在!\n";
+                }
+                if (!file_exists($layout_tpl)) {
+                    echo "文件 `{$layout_tpl}` 不存在!\n";
+                }
+            }
             exit('ERROR: <a href="https://github.com/itaken/mzPHP" title="mzPHP on GIT!">mzPHP</a> system error!');
         }
         $data = array(  // SEO 优化

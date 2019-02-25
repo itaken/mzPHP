@@ -3,9 +3,9 @@
 /**
  * 核心方法库
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-3-21
- * @version 1.0 RC2
+ * @version 1.0
  */
 defined('INI') or die('--CFunc--');
 include('private.function.php');   // 引入一些私有方法
@@ -24,7 +24,7 @@ function c($str)
         $c_conf_file = CROOT . 'config' . DS . 'core.config.php';  // 核心配置
         $c_conf = file_exists($c_conf_file) ? include($c_conf_file) : array();
         // 引入项目配置
-        $app_conf_file = AROOT . 'config' . DS . 'conf.inc';
+        $app_conf_file = APATH . 'config' . DS . 'conf.inc.php';
         $app_conf = file_exists($app_conf_file) ? include($app_conf_file) : array();
         $conf = array_merge($c_conf, $app_conf);
         $GLOBALS['__Mconf'] = $conf;
@@ -279,7 +279,7 @@ function Mlib($libname)
             continue;
         }
         if (APP_DEBUG) {
-            die('--ERROR: ' . $lib . '.php File Not Found!');
+            die('ERROR: ' . $lib . '.php File Not Found!');
         }
         die('Server busy, please try again later!');
     }

@@ -3,9 +3,9 @@
 /**
  * 一些私有的 方法库
  *
- * @author regel chen<regelhh@gmail.com>
+ * @author itaken<regelhh@gmail.com>
  * @since 2014-5-14
- * @version 1.0 RC2
+ * @version 1.0
  */
 defined('INI') or die('--PFunc--');
 
@@ -18,11 +18,22 @@ defined('INI') or die('--PFunc--');
 function __mzp_autoload($class)
 {
     $matchs = array();
-    $mctime = preg_match('/(controller|model)$/i', $class, $matchs);
-    if ($mctime == 1) {
-        $patch = strtolower($matchs[0]) . DS . str_replace(array('controller', 'model'), '', $class) . '.class.php';
-        if (file_exists($file = AROOT . $patch) || file_exists($file = CROOT . $patch)) {
-            include($file);
+    if (preg_match('/(controller|model)$/i', $class, $matchs)) {
+        $name = str_replace(array('controller', 'model'), '', $class);
+        if ($name) {
+            $patch = strtolower($matchs[0]) . DS . $name . '.class.php';
+            $a_file = AROOT . $patch;
+            if (file_exists($a_file)) {
+                include($a_file);
+            }
+            $core_file = CROOT . $patch;
+            if (file_exists($core_file)) {
+                include($core_file);
+            }
+            $app_file = APATH . $patch;
+            if (file_exists($app_file)) {
+                include($app_file);
+            }
         }
     }
 }
@@ -108,7 +119,7 @@ function __mzp_run()
     // 控制器与方法调用
     $obj = ucfirst($controller) . 'Controller';  // 组装类名
     if (!is_callable(array($obj, $action))) {   // 判断是否是可回调函数 或使用 method_exists
-        APP_DEBUG && die('--ERROR: Method - ' . $obj . '::' . $action . ' Not Found!');
+        APP_DEBUG && die('ERROR: Method - ' . $obj . '::' . $action . ' Not Found!');
         call_user_func(array(new CoreController(), '_empty'));   // 显示空操作
     }
     call_user_func_array(array(new $obj, $action), __refle($obj, $action, $param));
