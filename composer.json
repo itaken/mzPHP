@@ -33,7 +33,7 @@
             "": "tests/"
         }
     },
-    "license": "MIT",
+    "license": "BSD",
     "support": {
         "email": "regelhh@gmail.com"
     }

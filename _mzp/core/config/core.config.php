@@ -19,7 +19,7 @@ return array(
     'DEFAULT_META_KEYWORDS' => 'mzPHP,PHP,轻框架,PHP轻框架',
     'DEFAULT_META_DESCRIPTION' => 'More ZZZ, Let\'s PHP!',
     // 模板文件设定
-    'TPL_FILE_PATH' => AROOT . 'view/', // 模板文件存放路径 ( 不建议修改 )
+    'TPL_FILE_PATH' => APATH . 'view/', // 模板文件存放路径 ( 不建议修改 )
     'TPL_FILE_DEPR' => '/', // TPL文件分隔符 ( /:目录 )
     'TPL_FILE_SUFFIX' => '.tpl.html', // TPL模板后缀
     // 缓存设定
@@ -27,7 +27,7 @@ return array(
     'CACHE_EXPIRE' => 60, // 缓存有效期 ( 单位: 分钟 )
     // 其他设定
     'STATIC_FILE_PATH' => MROOT . 'data/static/', // 静态文件路径
-    'STRIP_INDEX_TAG' => false,  // 去除 URL 中 index.php
+    'STRIP_INDEX_TAG' => true,  // 去除 URL 中 index.php
     'PATH_RENDER_CUSTOM' => array('public/info'), // 路径例外,该路径没有模板文件,使用自定义模板渲染
     'EXTENSION_LOAD' => array('db'),  // 默认加载的扩展
     'LIB_CLASS_PREFIX' => 'M_',   // 类库 类前缀

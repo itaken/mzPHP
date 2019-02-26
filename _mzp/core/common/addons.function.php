@@ -174,7 +174,7 @@ function is_mobile()
 function mk_dir($dir, $mode = 0777)
 {
     if (!is_dir($dir) && strcasecmp(PHP_OS, 'WINNT') != false) {
-        mkdir($dir, $mode, true);
+        @mkdir($dir, $mode, true);
         return $dir;
     }
     $dir = _mkdir($dir, $mode);

@@ -22,10 +22,6 @@ function __mzp_autoload($class)
         $name = str_replace(array('controller', 'model'), '', $class);
         if ($name) {
             $patch = strtolower($matchs[0]) . DS . $name . '.class.php';
-            $a_file = AROOT . $patch;
-            if (file_exists($a_file)) {
-                include($a_file);
-            }
             $core_file = CROOT . $patch;
             if (file_exists($core_file)) {
                 include($core_file);
@@ -85,7 +81,7 @@ function __mzp_run()
 {
     $param = array();
     if (OPEN_SLINK) {
-        $path_arr = explode('/', str_replace('.html', '', trim(filter_input(INPUT_SERVER, 'PATH_INFO'), '/')));  // 获取路劲信息
+        $path_arr = explode('/', str_replace('.html', '', trim(filter_input(INPUT_SERVER, 'REQUEST_URI'), '/')));  // 获取路劲信息
         //		$query_arr = explode('&', filter_input(INPUT_SERVER, 'QUERY_STRING'));  // 查询字串
         $count = count($path_arr);
         if ($count >= 2) {
@@ -234,7 +230,6 @@ function __render_handle($args)
             continue;
         }
     }
-    //	var_dump($_tpl,$tpl_file,$layout_tpl,$layout_file,$controller,$action);exit;
     $exception = (empty($_tpl) || !in_array($_tpl, c('PATH_RENDER_CUSTOM'))) ? false : true;  // 是否例外
     if (empty($tpl_file) || $exception) {
         // 没有模板文件, 使用回溯信息
@@ -249,7 +244,7 @@ function __render_handle($args)
             break;
         }
     }
-    //	var_dump($tpl_file,$layout_tpl,$layout_file,$controller,$action);exit;
+    // var_dump($tpl_file,$layout_file,$controller,$action);exit;
     $GLOBALS['c'] = $controller;
     $GLOBALS['a'] = $action;
     $GLOBALS['__assign'] = $param;

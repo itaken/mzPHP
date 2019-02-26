@@ -123,7 +123,7 @@ function render()
     $_path = c('TPL_FILE_PATH');
     $tpl_file = $_path . $tpl;  // 完整 模板路径
     if (!file_exists($tpl_file)) {  // 模板文件 不存在
-        APP_DEBUG && exit('"' . $tpl . '" ERROR: TEMPLET FILE Not Found!!');
+        APP_DEBUG && exit("ERROR: TEMPLET FILE `{$tpl}` Not Found!");
         @call_user_func(array(new CoreController(), '_empty'));
     }
     $layout_file = $_path . $layout;  // 完整 布局文件

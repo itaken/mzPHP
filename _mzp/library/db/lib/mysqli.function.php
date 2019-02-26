@@ -47,7 +47,7 @@ function db($host = null, $port = null, $user = null, $password = null, $db_name
     }
     $mysqli = @new mysqli($host, $user, $password, $db_name, $port); // 初始化 mysqli
     if ($mysqli->connect_errno) {
-        $msg = APP_DEBUG ? ' < ' . $mysqli->connect_error . ' >' : '';
+        $msg = APP_DEBUG ? ' [ ' . $mysqli->connect_error . ' ]' : '';
         exit('ERROR: Connect failed!' . $msg);
     }
     $chart = empty($chart) ? DBConfig('CHART_SET') : $chart;  // 编码格式

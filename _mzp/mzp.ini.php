@@ -41,7 +41,6 @@ ini_set('short_open_tag', true);
  */
 define('CROOT', str_replace('\\', DS, dirname(__FILE__)) . DS . 'core' . DS);  // 核心文件夹
 define('LROOT', str_replace('\\', DS, dirname(__FILE__)) . DS . 'library' . DS);  // 库文件夹
-define('AROOT', str_replace('\\', DS, realpath(MROOT . APATH)) . DS);  // 应用路径
 
 /**
  * 引入 核心方法库 / 附加方法库 以及 用户方法库
@@ -50,7 +49,7 @@ $cfunc = CROOT . 'common' . DS . 'core.function.php'; // 核心方法库
 file_exists($cfunc) ? include_once($cfunc) : die('ERROR: Core Function File Not Found!');
 $afunc = CROOT . 'common' . DS . 'addons.function.php'; // 附加方法库
 file_exists($afunc) ? include_once($afunc) : die('ERROR: Addons Function File Not Found!');
-$ufunc = AROOT . 'common' . DS . 'function.php'; // 用戶方法库
+$ufunc = APATH . 'common' . DS . 'function.php'; // 用戶方法库
 file_exists($ufunc) && include_once($ufunc);
 
 /**
