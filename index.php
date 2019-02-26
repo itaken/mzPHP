@@ -8,7 +8,7 @@
  */
 !version_compare(PHP_VERSION, '5.6.0', '<') or die('ERROR: mzPHP require PHP > 5.6 !');
 
-define('APP_DEBUG', true);  // 系统调试设置 ( 项目正式部署后请设置为 false )
+define('APP_DEBUG', false);  // 系统调试设置 ( 项目正式部署后请设置为 false )
 if (APP_DEBUG) {
     ini_set('display_errors', 'On');
     error_reporting(E_ALL);
