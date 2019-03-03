@@ -1,6 +1,7 @@
 <?php
 
 defined('INI') or die('--CommonConf--');
+
 /**
  * 项目配置
  *
